@@ -142,8 +142,12 @@ public class DisplayDMFragment extends Fragment implements
 			MyNote mnote = new MyNote();
 			mnote.content = note.getContent();
 			ArrayList<String> resIds = new ArrayList<String>();
-			for (Resource res : note.getResources()) {
-				resIds.add(res.getGuid());
+			
+			List<Resource> resources = note.getResources();
+			if(resources != null) {
+				for (Resource res : resources) {
+					resIds.add(res.getGuid());
+				}
 			}
 			mnote.noteId = note.getGuid();
 			mnote.resIds = resIds;
@@ -242,35 +246,38 @@ public class DisplayDMFragment extends Fragment implements
 		protected Integer doInBackground(Integer... params) {
 			int position = params[0];
 			MyNote note = mNotes.get(position);
-			String resId = note.resIds.get(0);
-			Resource res;
-			try {
-				res = mSession.createNoteStore().getResource(
-						mSession.getAuthToken(), resId, true, false, false,
-						false);
-				Data data = res.getData();
-				Bitmap bitmap = BitmapFactory.decodeByteArray(data.getBody(),
-						0, data.getSize());
-				mBitmap = BitmapUtils.resizeAndCrop(bitmap, dm_width - 2
-						* margin, dm_height);
-				String size = dm_width - 2 * margin + "x" + dm_height;
-				note.small_thumb = resId + "_" + size;
-				memCache.put(note.small_thumb, mBitmap);
-			} catch (TTransportException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (EDAMUserException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (EDAMSystemException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (EDAMNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (TException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			
+			if(note.resIds.size() > 0) {
+				String resId = note.resIds.get(0);
+				Resource res;
+				try {
+					res = mSession.createNoteStore().getResource(
+							mSession.getAuthToken(), resId, true, false, false,
+							false);
+					Data data = res.getData();
+					Bitmap bitmap = BitmapFactory.decodeByteArray(data.getBody(),
+							0, data.getSize());
+					mBitmap = BitmapUtils.resizeAndCrop(bitmap, dm_width - 2
+							* margin, dm_height);
+					String size = dm_width - 2 * margin + "x" + dm_height;
+					note.small_thumb = resId + "_" + size;
+					memCache.put(note.small_thumb, mBitmap);
+				} catch (TTransportException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (EDAMUserException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (EDAMSystemException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (EDAMNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (TException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 			return position;
 		}
@@ -400,5 +407,12 @@ public class DisplayDMFragment extends Fragment implements
 		args.putString("title", title);
 		fragment.setArguments(args);
 		return fragment;
+	}
+
+	@Override
+	public void onPause() {
+		// release memCache to save mem
+		memCache.evictAll();
+		super.onPause();
 	}
 }
