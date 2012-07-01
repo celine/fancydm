@@ -7,7 +7,7 @@
     <string name="change_photo">Change photo</string>
     <string name="save_photo">Save</string>
     <string name="edit">Edit</string>
-    <string name="create_dm">Creating a new DM</string>
+    <string name="create_dm">Creating a new note</string>
     <string name="addDescription">Add description</string>
     <string name="loading">Loading...</string>
     <string name="confirm_delete">Delete</string>
@@ -19,5 +19,9 @@
     <string name="add_note">Add note</string>
     <string name="create_notebook">Create a new notebook</string>
     <string name="done">Done</string>
+    <string name="take_photo">Take photo</string>
+    <string name="pick_photo">Choose photo</string>
+    <string name="title">Title</string>
+    <string name="description">Description</string>
 
 </resources>

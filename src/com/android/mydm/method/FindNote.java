@@ -35,7 +35,7 @@ public class FindNote extends Method {
 		NoteFilter fileter = new NoteFilter();
 		Log.d("AAAA", "load in background " + fParams.notebookId);
 		fileter.setNotebookGuid(fParams.notebookId);
-	//	fileter.setWords("contentClass:" + CONTENT_CLASS);
+		fileter.setWords("contentClass:" + CONTENT_CLASS);
 		NoteList notes = mSession.createNoteStore().findNotes(
 				mSession.getAuthToken(), fileter, 0, 20);
 		return notes.getNotes();

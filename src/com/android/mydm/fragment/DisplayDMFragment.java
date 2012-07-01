@@ -73,7 +73,7 @@ public class DisplayDMFragment extends Fragment implements
 	EvernoteSession mSession;
 	LruCache<String, Bitmap> memCache;
 	DMLayout mLayout;
-	private static final String LOG_TAG = "DMWebFragment";
+	private static final String LOG_TAG = "DisplayDMFragment";
 	View mEmptyView;
 
 	@Override
@@ -109,6 +109,8 @@ public class DisplayDMFragment extends Fragment implements
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		menu.clear();
+		inflater.inflate(R.menu.notes, menu);
 	}
 
 	@Override
@@ -116,10 +118,19 @@ public class DisplayDMFragment extends Fragment implements
 		Log.d(LOG_TAG, "item id " + item.getItemId());
 		switch (item.getItemId()) {
 		case android.R.id.home:
+			Log.d(LOG_TAG, "onBackPressed ");
 			getActivity().onBackPressed();
-			break;
+			return true;
+		case R.id.create_note:
+			FragmentTransaction ft = getFragmentManager().beginTransaction();
+			CreateNoteFragment fragment = new CreateNoteFragment();
+			ft.add(R.id.panel1, fragment, "detail");
+			ft.addToBackStack(null);
+			ft.commit();
+			Log.d(LOG_TAG, "add fragment");
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	@Override
@@ -142,9 +153,9 @@ public class DisplayDMFragment extends Fragment implements
 			MyNote mnote = new MyNote();
 			mnote.content = note.getContent();
 			ArrayList<String> resIds = new ArrayList<String>();
-			
+
 			List<Resource> resources = note.getResources();
-			if(resources != null) {
+			if (resources != null) {
 				for (Resource res : resources) {
 					resIds.add(res.getGuid());
 				}
@@ -154,12 +165,28 @@ public class DisplayDMFragment extends Fragment implements
 			mnote.title = note.getTitle();
 			myNotes.add(mnote);
 		}
-		for (int i = 0; i < data.size(); i++) {
-			new GetResourceTask(getActivity(), session, memCache, mLayout,
-					myNotes).execute(i);
-		}
 
-		Log.d(LOG_TAG, "data size " + data.size());
+		Resources res = getResources();
+		int margin = res.getDimensionPixelSize(R.dimen.dm_margin);
+		int dm_width = res.getDimensionPixelSize(R.dimen.dm_width);
+		int dm_height = res.getDimensionPixelSize(R.dimen.dm_height);
+		int title_height = res.getDimensionPixelSize(R.dimen.title_height);
+		View parent = (View) mLayout.getParent();
+		int rowWidth = parent.getWidth();
+		if (rowWidth > 0) {
+			Log.d(LOG_TAG, "rowWidth " + rowWidth);
+			int per_row = rowWidth / dm_width;
+
+			int width = (rowWidth - (2 + per_row - 1) * margin) / per_row;
+			int height = Math.round((float) dm_width / width * dm_height);
+			for (int i = 0; i < data.size(); i++) {
+
+				new GetResourceTask(getActivity(), session, memCache, mLayout,
+						myNotes, width, height, title_height).execute(i);
+			}
+
+			Log.d(LOG_TAG, "data size " + data.size());
+		}
 	}
 
 	public static class MyNote implements Parcelable {
@@ -217,37 +244,30 @@ public class DisplayDMFragment extends Fragment implements
 		LruCache<String, Bitmap> memCache;
 		ArrayList<MyNote> mNotes;
 		Bitmap mBitmap;
-		int margin;
-		int dm_width;
-		int dm_height;
+		int width;
+		int height;
 		int title_height;
-		int rowWidth;
-		int per_row = 1;
 
 		public GetResourceTask(FragmentActivity fragmentActivity,
 				EvernoteSession session, LruCache<String, Bitmap> cache,
-				DMLayout layout, ArrayList<MyNote> myNotes) {
+				DMLayout layout, ArrayList<MyNote> myNotes, int width,
+				int height, int title_height) {
 			mActivity = fragmentActivity;
 			mLayout = layout;
 			mSession = session;
 			memCache = cache;
 			mNotes = myNotes;
-			Resources res = fragmentActivity.getResources();
-			margin = res.getDimensionPixelSize(R.dimen.dm_margin);
-			dm_width = res.getDimensionPixelSize(R.dimen.dm_width);
-			dm_height = res.getDimensionPixelSize(R.dimen.dm_height);
-			title_height = res.getDimensionPixelSize(R.dimen.title_height);
-			View parent = (View) mLayout.getParent();
-			rowWidth = parent.getWidth();
-			per_row = rowWidth / dm_width;
+			this.width = width;
+			this.height = height;
+			this.title_height = title_height;
 		}
 
 		@Override
 		protected Integer doInBackground(Integer... params) {
 			int position = params[0];
 			MyNote note = mNotes.get(position);
-			
-			if(note.resIds.size() > 0) {
+
+			if (note.resIds.size() > 0) {
 				String resId = note.resIds.get(0);
 				Resource res;
 				try {
@@ -255,11 +275,10 @@ public class DisplayDMFragment extends Fragment implements
 							mSession.getAuthToken(), resId, true, false, false,
 							false);
 					Data data = res.getData();
-					Bitmap bitmap = BitmapFactory.decodeByteArray(data.getBody(),
-							0, data.getSize());
-					mBitmap = BitmapUtils.resizeAndCrop(bitmap, dm_width - 2
-							* margin, dm_height);
-					String size = dm_width - 2 * margin + "x" + dm_height;
+					Bitmap bitmap = BitmapFactory.decodeByteArray(
+							data.getBody(), 0, data.getSize());
+					mBitmap = BitmapUtils.resizeAndCrop(bitmap, width, height);
+					String size = width + "x" + height;
 					note.small_thumb = resId + "_" + size;
 					memCache.put(note.small_thumb, mBitmap);
 				} catch (TTransportException e) {
@@ -287,8 +306,6 @@ public class DisplayDMFragment extends Fragment implements
 			MyNote note = mNotes.get(position);
 			View item = LayoutInflater.from(mActivity).inflate(
 					R.layout.action_dm, null, false);
-			int width = (rowWidth - (2 + per_row - 1) * margin) / per_row;
-			int height = Math.round((float) dm_width / width * dm_height);
 			LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(width,
 					height + title_height);
 			item.setLayoutParams(lp);
@@ -308,12 +325,13 @@ public class DisplayDMFragment extends Fragment implements
 					args.putParcelableArrayList("notes", mNotes);
 					args.putInt("position", (Integer) v.getTag());
 					fragment.setArguments(args);
-					ft.add(R.id.panel1, fragment);
+					ft.add(R.id.panel1, fragment, "create_note");
 					ft.addToBackStack(null);
 					ft.commit();
 				}
 			});
-			mLayout.addChildView(item, dm_width);
+
+			mLayout.addChildView(item, width);
 		}
 	}
 

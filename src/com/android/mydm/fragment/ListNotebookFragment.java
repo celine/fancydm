@@ -77,7 +77,7 @@ public class ListNotebookFragment extends ListFragment implements
 		if (notebook.getGuid() != null) {
 			DisplayDMFragment fragment = DisplayDMFragment.newInstance(
 					notebook.getGuid(), notebook.getName());
-			ft.add(R.id.panel1, fragment);
+			ft.add(R.id.panel1, fragment, "pages");
 
 			ft.addToBackStack(null);
 			ft.commit();
@@ -240,7 +240,7 @@ public class ListNotebookFragment extends ListFragment implements
 		Log.d(LOG_TAG, "data " + notebooks.size());
 		Notebook notebook = new Notebook();
 		notebook.setName(getString(R.string.create_notebook));
-		notebooks.add(notebook);
+		notebooks.add(0, notebook);
 
 		mAdapter.updateData(notebooks);
 	}

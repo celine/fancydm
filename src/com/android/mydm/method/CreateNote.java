@@ -26,6 +26,7 @@ public class CreateNote extends Method {
 
 	public static class CreateNoteParams extends Params {
 		public String title;
+		public String description;
 		public String mimeType;
 		public String f;
 		public List<String> tagNames;
@@ -41,7 +42,6 @@ public class CreateNote extends Method {
 			EDAMNotFoundException, TException {
 		CreateNoteParams cp = (CreateNoteParams) params;
 		InputStream in;
-
 		in = new BufferedInputStream(new FileInputStream(cp.f));
 		FileData data = new FileData(EDAMUtil.hash(in), new File(cp.f));
 		in.close();
@@ -53,19 +53,20 @@ public class CreateNote extends Method {
 
 		// Create a new Note
 		Note note = new Note();
-		String enml = note.getContent();
 		note.setTitle(cp.title);
+
 		note.setNotebookGuid(cp.notebookId);
 		NoteAttributes attrs = new NoteAttributes();
 		attrs.setContentClass(CONTENT_CLASS);
 		note.setAttributes(attrs);
 		note.addToResources(resource);
-		note.setTagNames(cp.tagNames);
-		String todo = "<en-todo/>An item that I haven't yet completed<br/>";
+		//note.setTagNames(cp.tagNames);
+		String todo = "<en-todo/>Item completed<br/>";
 		// Set the note's ENML content. Learn about ENML at
 		// http://dev.evernote.com/documentation/cloud/chapters/ENML.php
-		String content = NOTE_PREFIX + "<p>" + cp.title + "</p>"
-				+ "<en-media type=\"" + cp.mimeType + "\" hash=\""
+		String content = NOTE_PREFIX + "<h1>" + cp.title + "</h1><p>"
+				+ cp.description + "</p>" + "<en-media type=\"" + cp.mimeType
+				+ "\" hash=\""
 				+ EDAMUtil.bytesToHex(resource.getData().getBodyHash())
 				+ "\"/>" + todo + NOTE_SUFFIX;
 		Log.d("Evernote", "content " + content);

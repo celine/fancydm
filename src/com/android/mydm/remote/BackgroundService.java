@@ -47,6 +47,7 @@ public class BackgroundService extends IntentService {
 				CreateNote create = new CreateNote(session);
 				CreateNoteParams params = new CreateNoteParams();
 				params.title = extras.getString("title");
+				params.description = extras.getString("description");
 				params.mimeType = extras.getString("mimeType");
 				File file = new File(intent.getData().getPath());
 				Log.d(LOG_TAG, "file exists " + file.exists());
