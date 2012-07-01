@@ -308,7 +308,7 @@ public class DisplayDMFragment extends Fragment implements
 					args.putParcelableArrayList("notes", mNotes);
 					args.putInt("position", (Integer) v.getTag());
 					fragment.setArguments(args);
-					ft.add(R.id.rack, fragment);
+					ft.add(R.id.panel1, fragment);
 					ft.addToBackStack(null);
 					ft.commit();
 				}

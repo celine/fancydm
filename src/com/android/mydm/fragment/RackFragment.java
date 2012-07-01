@@ -104,7 +104,7 @@ public class RackFragment extends Fragment implements
 
 				FragmentTransaction ft = getFragmentManager()
 						.beginTransaction();
-				ft.add(R.id.rack, fragment);
+				ft.add(R.id.panel1, fragment);
 				ft.addToBackStack(null);
 				ft.commit();
 			}

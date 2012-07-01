@@ -7,8 +7,15 @@
     <fragment
         android:id="@+id/panel1"
         android:name="com.android.mydm.fragment.ListNotebookFragment"
-        android:layout_width="match_parent"
+        android:layout_width="@dimen/notebook_size"
         android:layout_height="match_parent"
         android:tag="notebooks" />
+
+    <fragment
+        android:id="@+id/panel2"
+        android:name="com.android.mydm.fragment.DisplayDMFragment"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:tag="notes" />
 
 </LinearLayout>
