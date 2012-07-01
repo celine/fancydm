@@ -19,5 +19,7 @@
     <string name="add_note">Add note</string>
     <string name="create_notebook">Create a new notebook</string>
     <string name="done">Done</string>
+    <string name="add_to_notebook_success">Successfully import share note to notebook</string>
+    <string name="add_to_notebook_fail">Fail to import note to notebook</string>
 
 </resources>

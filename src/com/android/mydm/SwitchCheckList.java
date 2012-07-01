@@ -20,6 +20,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.android.mydm.fragment.DMGalleryFragment;
 import com.android.mydm.fragment.DisplayDMFragment.MyNote;
@@ -297,6 +298,9 @@ public class SwitchCheckList extends FragmentActivity implements
 			protected void onPostExecute(Boolean result) {
 				if(result) {
 					Log.d("AAAA", "success");
+					Toast.makeText(SwitchCheckList.this, R.string.add_to_notebook_success, Toast.LENGTH_LONG);
+				} else {
+					Toast.makeText(SwitchCheckList.this, R.string.add_to_notebook_fail, Toast.LENGTH_LONG);
 				}
 				
 				finish();

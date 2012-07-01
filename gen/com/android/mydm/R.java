@@ -142,6 +142,8 @@ containing a value of this type.
     public static final class string {
         public static final int addDescription=0x7f060007;
         public static final int add_note=0x7f06000f;
+        public static final int add_to_notebook_fail=0x7f060013;
+        public static final int add_to_notebook_success=0x7f060012;
         public static final int app_name=0x7f060001;
         public static final int cancel=0x7f06000a;
         public static final int change_photo=0x7f060003;
