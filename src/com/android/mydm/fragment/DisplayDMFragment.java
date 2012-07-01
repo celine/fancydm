@@ -168,6 +168,8 @@ public class DisplayDMFragment extends Fragment implements
 		public ArrayList<String> resIds = new ArrayList<String>();
 		public String content;
 		public String small_thumb;
+		
+		public String token = null;
 
 		public MyNote() {
 		}

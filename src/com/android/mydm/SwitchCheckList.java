@@ -17,9 +17,14 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.util.LruCache;
 import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 
 import com.android.mydm.fragment.DMGalleryFragment;
 import com.android.mydm.fragment.DisplayDMFragment.MyNote;
+import com.android.mydm.fragment.ListNotebookFragment;
+import com.android.mydm.fragment.ListNotebookFragment.OnNotebookSelectedListener;
 import com.android.mydm.util.BitmapUtils;
 import com.evernote.client.oauth.android.EvernoteSession;
 import com.evernote.edam.error.EDAMNotFoundException;
@@ -28,21 +33,37 @@ import com.evernote.edam.error.EDAMUserException;
 import com.evernote.edam.notestore.NoteStore.Client;
 import com.evernote.edam.type.Data;
 import com.evernote.edam.type.Note;
+import com.evernote.edam.type.Notebook;
 import com.evernote.edam.type.Resource;
 
-public class SwitchCheckList extends FragmentActivity {
+public class SwitchCheckList extends FragmentActivity implements
+		OnNotebookSelectedListener {
 	private static final String LOG_TAG = "EvernoteViewCheckList";
 	private String mUrl = null;
 	static Pattern urlPattern = Pattern
 			.compile("^https://sandbox.evernote.com/shard/(\\w+)/sh/(\\S+)/(.*)");
-	
+
 	MyNote mNote = null;
+
+	Button mSaveButton = null;
+	Button mCancelButton = null;
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.switch_dm);
 
-		Log.d("AAAA", "shared");
+		mSaveButton = (Button) this.findViewById(R.id.button_save);
+		mCancelButton = (Button) this.findViewById(R.id.button_cancel);
+
+		mSaveButton.setEnabled(false);
+		mCancelButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View paramView) {
+				finish();
+			}
+
+		});
 	}
 
 	String mNotebookId;
@@ -68,12 +89,12 @@ public class SwitchCheckList extends FragmentActivity {
 
 						@Override
 						public void onLoaded(MyNote note) {
-							if(note != null) {
+							if (note != null) {
 								ArrayList<MyNote> mNotes = new ArrayList<MyNote>();
 								mNotes.add(note);
-								
+
 								mNote = note;
-								
+
 								FragmentTransaction ft = getSupportFragmentManager()
 										.beginTransaction();
 								DMGalleryFragment fragment = new DMGalleryFragment();
@@ -85,6 +106,33 @@ public class SwitchCheckList extends FragmentActivity {
 								ft.add(R.id.DMGalleryContainer, fragment);
 								ft.addToBackStack(null);
 								ft.commit();
+
+								mSaveButton.setEnabled(true);
+								mSaveButton
+										.setOnClickListener(new OnClickListener() {
+
+											@Override
+											public void onClick(View paramView) {
+												FragmentTransaction ft = getSupportFragmentManager()
+														.beginTransaction();
+												ListNotebookFragment fragment = new ListNotebookFragment();
+												Bundle args = new Bundle();
+												args.putBoolean("can_create",
+														false);
+												fragment.setArguments(args);
+												fragment.setOnNotebookSelectedListener(SwitchCheckList.this);
+												ft.add(R.id.DMGalleryContainer,
+														fragment);
+												ft.replace(
+														R.id.DMGalleryContainer,
+														fragment);
+												ft.addToBackStack(null);
+
+												ft.commit();
+												Log.d("AAAA", "aa");
+											}
+
+										});
 							}
 						}
 
@@ -105,17 +153,17 @@ public class SwitchCheckList extends FragmentActivity {
 		Client noteStore = null;
 		NoteListener mListener;
 		LruCache memCache;
-		
+
 		int margin;
 		int dm_width;
 		int dm_height;
 
-		GetShareNoteTask(EvernoteSession session, LruCache memCache, Resources res,
-				NoteListener listener) {
+		GetShareNoteTask(EvernoteSession session, LruCache memCache,
+				Resources res, NoteListener listener) {
 			this.mSession = session;
 			this.mListener = listener;
 			this.memCache = memCache;
-			
+
 			margin = res.getDimensionPixelSize(R.dimen.dm_margin);
 			dm_width = res.getDimensionPixelSize(R.dimen.dm_width);
 			dm_height = res.getDimensionPixelSize(R.dimen.dm_height);
@@ -152,12 +200,13 @@ public class SwitchCheckList extends FragmentActivity {
 					myNote.noteId = note.getGuid();
 					myNote.resIds = resIds;
 					myNote.title = note.getTitle();
+					myNote.token = shareResult.getAuthenticationToken();
 
 					if (myNote.resIds.size() > 0) {
 						String resId = myNote.resIds.get(0);
 						Resource res = mSession.createNoteStore().getResource(
-								shareResult.getAuthenticationToken(), resId, true, false,
-								false, false);
+								shareResult.getAuthenticationToken(), resId,
+								true, false, false, false);
 						Data data = res.getData();
 						Bitmap bitmap = BitmapFactory.decodeByteArray(
 								data.getBody(), 0, data.getSize());
@@ -196,5 +245,63 @@ public class SwitchCheckList extends FragmentActivity {
 			mListener.onLoaded(result);
 		}
 
+	}
+
+	@Override
+	public void onNotebookSelected(Notebook notebook) {
+		// Create an AsynTask to copy note
+		(new AsyncTask<Notebook, Void, Boolean>() {
+
+			@Override
+			protected Boolean doInBackground(Notebook... notebooks) {
+				if (notebooks == null || notebooks.length == 0) {
+					return false;
+				}
+				
+				Notebook notebook = notebooks[0];
+				try {
+					Client noteStore = mSession.createNoteStore();
+					String token = mNote.token == null ? mSession
+							.getAuthToken() : mNote.token;
+
+					Note note = noteStore.getNote(mNote.token, mNote.noteId,
+							true, true, true, true);
+					Note noteCopy = note.deepCopy();
+					noteCopy.setNotebookGuid(notebook.getGuid());
+					noteCopy.setTagGuids(new ArrayList<String>());
+					noteStore.createNote(mSession.getAuthToken(),
+							noteCopy);
+					
+					return true;
+				} catch (TTransportException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (EDAMUserException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (EDAMSystemException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (EDAMNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (TException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+				return false;
+			}
+
+			@Override
+			protected void onPostExecute(Boolean result) {
+				if(result) {
+					Log.d("AAAA", "success");
+				}
+				
+				finish();
+			}
+
+		}).execute(notebook);
 	}
 }
