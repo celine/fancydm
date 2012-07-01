@@ -1,0 +1,51 @@
+<html>
+<head>
+<meta name="viewport" content="width=device-width, user-scalable=no, target-densitydpi=device-dpi"/>
+<link rel="stylesheet" href="style.css"/>
+<script type="text/javascript" src="jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="jquery.masonry.js"></script>
+
+</head>
+<body>
+<div id="container" class="transitions-enabled centered clearfix">
+    
+</div>
+<script>
+$(function(){
+
+    var $container = $('#container');
+
+    $container.imagesLoaded( function(){
+      $container.masonry({
+        itemSelector : '.box'
+      });
+    });
+
+    addBox('http://farm5.static.flickr.com/4086/5013039583_26717f6e89.jpg', 'imgsq1', 'testtesttesttesttesttesttesttesttesttesttest');
+  });
+  
+function addBox(imgUrl, boxClass, title) {
+	var box = document.createElement('div')
+	var img = document.createElement('img');
+	var span = document.createElement('div');
+	span.style.fontSize = "30px";
+	span.style.margin="10px";
+	span.appendChild(document.createTextNode(title));
+	
+	console.log(span);
+	box.className = 'box photo '+boxClass;
+	img.src = imgUrl;
+	box.appendChild(img);
+	box.appendChild(span);
+	var $container = $('#container');
+	$(box).imagesLoaded( function(){
+		$container.prepend(box).masonry( 'reload');
+	});
+}  
+function unload(){
+	var $container = $('#container');
+	container.empty();
+}
+</script>
+</body>
+</html>

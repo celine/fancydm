@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <com.android.mydm.view.RackView
+        xmlns:dms="http://schemas.android.com/apk/res/com.android.mydm"
+        android:id="@+id/rack"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:cacheColorHint="#00000000"
+        android:columnWidth="140dp"
+        android:listSelector="@android:color/transparent"
+        android:numColumns="auto_fit" />
+
+</LinearLayout>
