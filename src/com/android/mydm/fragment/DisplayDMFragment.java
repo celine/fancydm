@@ -50,7 +50,6 @@ import com.android.mydm.R.dimen;
 import com.android.mydm.R.id;
 import com.android.mydm.R.layout;
 import com.android.mydm.R.menu;
-import com.android.mydm.SwitchCheckList.NoteListLoader;
 import com.android.mydm.method.FindNote;
 import com.android.mydm.method.FindNote.FindNoteParams;
 import com.android.mydm.method.ShareNote;

@@ -76,13 +76,16 @@ containing a value of this type.
         public static final int rounded_corners_white=0x7f020013;
     }
     public static final class id {
-        public static final int action_cancel_delete=0x7f09001e;
-        public static final int action_confirm_delete=0x7f09001d;
-        public static final int action_delete=0x7f09001c;
-        public static final int action_share=0x7f09001b;
+        public static final int DMGalleryContainer=0x7f090017;
+        public static final int action_cancel_delete=0x7f090020;
+        public static final int action_confirm_delete=0x7f09001f;
+        public static final int action_delete=0x7f09001e;
+        public static final int action_share=0x7f09001d;
         public static final int body=0x7f090015;
         public static final int border=0x7f09000f;
-        public static final int btn_left=0x7f090018;
+        public static final int btn_left=0x7f09001a;
+        public static final int button_cancel=0x7f090018;
+        public static final int button_save=0x7f090019;
         public static final int checkbox=0x7f090001;
         public static final int content=0x7f09000d;
         public static final int create_share_url=0x7f090005;
@@ -97,16 +100,15 @@ containing a value of this type.
         public static final int gallery_header=0x7f090011;
         public static final int gallery_sidebar=0x7f090012;
         public static final int img=0x7f090000;
-        public static final int item1=0x7f09001a;
+        public static final int item1=0x7f09001c;
         public static final int message=0x7f090016;
         public static final int more=0x7f090003;
         public static final int more_detail=0x7f090002;
-        public static final int pager=0x7f090017;
         public static final int progress=0x7f090007;
         public static final int rack=0x7f090010;
         public static final int save=0x7f090008;
         public static final int title=0x7f090004;
-        public static final int webView1=0x7f090019;
+        public static final int webView1=0x7f09001b;
     }
     public static final class layout {
         public static final int action_dm=0x7f030000;
