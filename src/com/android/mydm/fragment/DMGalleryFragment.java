@@ -1,8 +1,6 @@
 package com.android.mydm.fragment;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -12,43 +10,16 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.thrift.TException;
 import org.apache.thrift.transport.TTransportException;
 
-import com.android.mydm.CheckListApplication;
-import com.android.mydm.R;
-import com.android.mydm.R.id;
-import com.android.mydm.R.layout;
-import com.android.mydm.fragment.DisplayDMFragment.MyNote;
-import com.android.mydm.method.ShareNote;
-import com.android.mydm.method.ShareNote.ShareNoteParams;
-import com.evernote.client.conn.ApplicationInfo;
-import com.evernote.client.oauth.android.EvernoteSession;
-import com.evernote.edam.error.EDAMNotFoundException;
-import com.evernote.edam.error.EDAMSystemException;
-import com.evernote.edam.error.EDAMUserException;
-import com.evernote.edam.notestore.NoteFilter;
-import com.evernote.edam.notestore.NoteList;
-import com.evernote.edam.type.Data;
-import com.evernote.edam.type.Note;
-import com.evernote.edam.type.Resource;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.AsyncTaskLoader;
-import android.support.v4.content.Loader;
 import android.support.v4.util.LruCache;
-import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -67,6 +38,18 @@ import android.widget.ImageView;
 import android.widget.ShareActionProvider;
 import android.widget.TextView;
 
+import com.android.mydm.CheckListApplication;
+import com.android.mydm.R;
+import com.android.mydm.fragment.DisplayDMFragment.MyNote;
+import com.android.mydm.method.ShareNote;
+import com.android.mydm.method.ShareNote.ShareNoteParams;
+import com.evernote.client.oauth.android.EvernoteSession;
+import com.evernote.edam.error.EDAMNotFoundException;
+import com.evernote.edam.error.EDAMSystemException;
+import com.evernote.edam.error.EDAMUserException;
+import com.evernote.edam.type.Data;
+import com.evernote.edam.type.Resource;
+
 public class DMGalleryFragment extends Fragment {
 	DMPageAdapter mAdapter;
 	private static final String LOG_TAG = "DMGalleryFragment";
@@ -74,6 +57,8 @@ public class DMGalleryFragment extends Fragment {
 
 	ShareActionProvider mShareActionProvider;
 	public SparseArray<String> mUrlArray;
+
+	private boolean mShareNote = false;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -150,8 +135,11 @@ public class DMGalleryFragment extends Fragment {
 		memCache = app.getMemCache();
 		List<MyNote> notes = getArguments().getParcelableArrayList("notes");
 		mUrlArray = new SparseArray<String>(notes.size());
+
+		mShareNote = getArguments().getBoolean("share_note", false);
+
 		mAdapter = new DMPageAdapter(getActivity(), mSession, memCache,
-				mUrlArray);
+				mUrlArray, mShareNote);
 		mGallery.setAdapter(mAdapter);
 		mAdapter.updateData(notes);
 		int currentItem = getArguments().getInt("position");
@@ -171,14 +159,17 @@ public class DMGalleryFragment extends Fragment {
 		EvernoteSession mSession;
 		LruCache<String, Bitmap> memCache;
 		SparseArray<String> mUrlArray;
+		boolean mShareNote = false;
 
 		public DMPageAdapter(Activity context, EvernoteSession session,
-				LruCache<String, Bitmap> cache, SparseArray<String> urlArray) {
+				LruCache<String, Bitmap> cache, SparseArray<String> urlArray,
+				boolean shareNote) {
 			mActivity = context;
 			mInflater = LayoutInflater.from(context);
 			mSession = session;
 			memCache = cache;
 			mUrlArray = urlArray;
+			mShareNote = shareNote;
 		}
 
 		public void updateData(List<MyNote> notes) {
@@ -218,11 +209,12 @@ public class DMGalleryFragment extends Fragment {
 			TextView mTitle = (TextView) convertView
 					.findViewById(R.id.detail_title);
 			final View progress = convertView.findViewById(R.id.progress);
-			
+
 			final Button mButton = (Button) convertView
 					.findViewById(R.id.create_share_url);
 			boolean urlExist = mUrlArray.get(position) != null;
-			mButton.setVisibility(urlExist ? View.GONE : View.VISIBLE);
+			mButton.setVisibility(urlExist || mShareNote ? View.GONE
+					: View.VISIBLE);
 			mButton.setTag(position);
 			mButton.setOnClickListener(new OnClickListener() {
 
@@ -403,6 +395,10 @@ public class DMGalleryFragment extends Fragment {
 
 		@Override
 		protected void onPostExecute(Bitmap result) {
+			if (result == null) {
+				return;
+			}
+
 			String resId = mNote.resIds.get(0);
 			if (resId.equals(mView.getTag())) {
 				ImageView mImage = (ImageView) mView.findViewById(R.id.img);

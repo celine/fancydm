@@ -19,9 +19,14 @@
     <string name="add_note">Add note</string>
     <string name="create_notebook">Create a new notebook</string>
     <string name="done">Done</string>
+<<<<<<< HEAD
     <string name="take_photo">Take photo</string>
     <string name="pick_photo">Choose photo</string>
     <string name="title">Title</string>
     <string name="description">Description</string>
+=======
+    <string name="add_to_notebook_success">Successfully import share note to notebook</string>
+    <string name="add_to_notebook_fail">Fail to import note to notebook</string>
+>>>>>>> f9a591878e831aa79a61b64fc61adf28ed3c6f1e
 
 </resources>

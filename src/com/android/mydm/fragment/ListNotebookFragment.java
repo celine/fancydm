@@ -57,6 +57,8 @@ public class ListNotebookFragment extends ListFragment implements
 	NoteBookAdapter mAdapter;
 	private static final String LOG_TAG = "ListNotebookFragment";
 
+	private OnNotebookSelectedListener listener = null;
+
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		getActivity().getActionBar().setTitle(R.string.app_name);
@@ -73,6 +75,7 @@ public class ListNotebookFragment extends ListFragment implements
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		Notebook notebook = (Notebook) l.getItemAtPosition(position);
 
+<<<<<<< HEAD
 		FragmentTransaction ft = getFragmentManager().beginTransaction();
 		if (notebook.getGuid() != null) {
 			DisplayDMFragment fragment = DisplayDMFragment.newInstance(
@@ -81,16 +84,31 @@ public class ListNotebookFragment extends ListFragment implements
 
 			ft.addToBackStack(null);
 			ft.commit();
+=======
+		if (listener != null) {
+			listener.onNotebookSelected(notebook);
+>>>>>>> f9a591878e831aa79a61b64fc61adf28ed3c6f1e
 		} else {
-			Fragment prev = getFragmentManager().findFragmentByTag("dialog");
-			if (prev != null) {
-				ft.remove(prev);
-			}
-			ft.addToBackStack(null);
-			DialogFragment f = CreateNotebookDialog
-					.newInstance(getString(R.string.create_notebook));
-			f.show(getFragmentManager(), "dialog");
+			FragmentTransaction ft = getFragmentManager().beginTransaction();
+			if (notebook.getGuid() != null) {
+				DisplayDMFragment fragment = DisplayDMFragment.newInstance(
+						notebook.getGuid(), notebook.getName());
+				ft.add(R.id.panel1, fragment);
 
+				ft.addToBackStack(null);
+				ft.commit();
+			} else {
+				Fragment prev = getFragmentManager()
+						.findFragmentByTag("dialog");
+				if (prev != null) {
+					ft.remove(prev);
+				}
+				ft.addToBackStack(null);
+				DialogFragment f = CreateNotebookDialog
+						.newInstance(getString(R.string.create_notebook));
+				f.show(getFragmentManager(), "dialog");
+
+			}
 		}
 	}
 
@@ -238,9 +256,23 @@ public class ListNotebookFragment extends ListFragment implements
 	public void onLoadFinished(Loader<List<Notebook>> loader,
 			List<Notebook> notebooks) {
 		Log.d(LOG_TAG, "data " + notebooks.size());
+<<<<<<< HEAD
 		Notebook notebook = new Notebook();
 		notebook.setName(getString(R.string.create_notebook));
 		notebooks.add(0, notebook);
+=======
+
+		Bundle args = this.getArguments();
+		boolean canCreate = true;
+		if (args != null) {
+			canCreate = args.getBoolean("can_create", true);
+		}
+		if (canCreate) {
+			Notebook notebook = new Notebook();
+			notebook.setName(getString(R.string.create_notebook));
+			notebooks.add(notebook);
+		}
+>>>>>>> f9a591878e831aa79a61b64fc61adf28ed3c6f1e
 
 		mAdapter.updateData(notebooks);
 	}
@@ -249,6 +281,11 @@ public class ListNotebookFragment extends ListFragment implements
 	public void onLoaderReset(Loader<List<Notebook>> arg0) {
 		// TODO Auto-generated method stub
 
+	}
+
+	public void setOnNotebookSelectedListener(
+			OnNotebookSelectedListener listener) {
+		this.listener = listener;
 	}
 
 	public static class CreateNotebookDialog extends DialogFragment implements
@@ -364,6 +401,10 @@ public class ListNotebookFragment extends ListFragment implements
 			return null;
 		}
 
+	}
+
+	public static interface OnNotebookSelectedListener {
+		public void onNotebookSelected(Notebook notebook);
 	}
 
 	public void onDialogDismiss(boolean update) {

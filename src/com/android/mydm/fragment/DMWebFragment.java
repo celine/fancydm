@@ -13,7 +13,6 @@ import android.support.v4.content.Loader;
 import android.util.Log;
 
 import com.android.mydm.CheckListApplication;
-import com.android.mydm.SwitchCheckList.NoteListLoader;
 import com.evernote.client.oauth.android.EvernoteSession;
 import com.evernote.edam.error.EDAMNotFoundException;
 import com.evernote.edam.error.EDAMSystemException;

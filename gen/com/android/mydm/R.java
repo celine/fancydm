@@ -77,6 +77,7 @@ containing a value of this type.
         public static final int rounded_corners_white=0x7f020013;
     }
     public static final class id {
+<<<<<<< HEAD
         public static final int action_cancel_delete=0x7f090027;
         public static final int action_confirm_delete=0x7f090026;
         public static final int action_delete=0x7f090025;
@@ -85,6 +86,18 @@ containing a value of this type.
         public static final int border=0x7f090012;
         public static final int btn_left=0x7f09001f;
         public static final int camera=0x7f090022;
+=======
+        public static final int DMGalleryContainer=0x7f09001b;
+        public static final int action_cancel_delete=0x7f090024;
+        public static final int action_confirm_delete=0x7f090023;
+        public static final int action_delete=0x7f090022;
+        public static final int action_share=0x7f090021;
+        public static final int body=0x7f090019;
+        public static final int border=0x7f09000f;
+        public static final int btn_left=0x7f09001e;
+        public static final int button_cancel=0x7f09001c;
+        public static final int button_save=0x7f09001d;
+>>>>>>> f9a591878e831aa79a61b64fc61adf28ed3c6f1e
         public static final int checkbox=0x7f090001;
         public static final int content=0x7f09000f;
         public static final int create_note=0x7f090024;
@@ -103,6 +116,7 @@ containing a value of this type.
         public static final int gallery_sidebar=0x7f090016;
         public static final int icon=0x7f090017;
         public static final int img=0x7f090000;
+<<<<<<< HEAD
         public static final int item1=0x7f090023;
         public static final int message=0x7f09001d;
         public static final int more=0x7f090003;
@@ -118,6 +132,20 @@ containing a value of this type.
         public static final int title=0x7f090004;
         public static final int title_field=0x7f090005;
         public static final int webView1=0x7f090020;
+=======
+        public static final int item1=0x7f090020;
+        public static final int message=0x7f09001a;
+        public static final int more=0x7f090003;
+        public static final int more_detail=0x7f090002;
+        public static final int panel1=0x7f090010;
+        public static final int panel2=0x7f090011;
+        public static final int progress=0x7f090007;
+        public static final int rack=0x7f090016;
+        public static final int save=0x7f090008;
+        public static final int text=0x7f090015;
+        public static final int title=0x7f090004;
+        public static final int webView1=0x7f09001f;
+>>>>>>> f9a591878e831aa79a61b64fc61adf28ed3c6f1e
     }
     public static final class layout {
         public static final int action_dm=0x7f030000;
@@ -150,6 +178,8 @@ containing a value of this type.
     public static final class string {
         public static final int addDescription=0x7f060007;
         public static final int add_note=0x7f06000f;
+        public static final int add_to_notebook_fail=0x7f060013;
+        public static final int add_to_notebook_success=0x7f060012;
         public static final int app_name=0x7f060001;
         public static final int cancel=0x7f06000a;
         public static final int change_photo=0x7f060003;
