@@ -58,6 +58,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
 
                 <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:pathPattern="/shard/*"/>
             </intent-filter>
         </activity>
         <activity android:name="com.android.mydm.MainActivity" >
@@ -65,18 +67,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
 
                 <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
-            <intent-filter>
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <action android:name="android.intent.action.VIEW" />
-
-                <data
-                    android:host="sandbox.evernote.com"
-                    android:pathPattern="/shard/.*"
-                    android:scheme="https" />
-
-                <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
         </activity>
     </application>
