@@ -75,19 +75,8 @@ public class ListNotebookFragment extends ListFragment implements
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		Notebook notebook = (Notebook) l.getItemAtPosition(position);
 
-<<<<<<< HEAD
-		FragmentTransaction ft = getFragmentManager().beginTransaction();
-		if (notebook.getGuid() != null) {
-			DisplayDMFragment fragment = DisplayDMFragment.newInstance(
-					notebook.getGuid(), notebook.getName());
-			ft.add(R.id.panel1, fragment, "pages");
-
-			ft.addToBackStack(null);
-			ft.commit();
-=======
 		if (listener != null) {
 			listener.onNotebookSelected(notebook);
->>>>>>> f9a591878e831aa79a61b64fc61adf28ed3c6f1e
 		} else {
 			FragmentTransaction ft = getFragmentManager().beginTransaction();
 			if (notebook.getGuid() != null) {
@@ -256,11 +245,6 @@ public class ListNotebookFragment extends ListFragment implements
 	public void onLoadFinished(Loader<List<Notebook>> loader,
 			List<Notebook> notebooks) {
 		Log.d(LOG_TAG, "data " + notebooks.size());
-<<<<<<< HEAD
-		Notebook notebook = new Notebook();
-		notebook.setName(getString(R.string.create_notebook));
-		notebooks.add(0, notebook);
-=======
 
 		Bundle args = this.getArguments();
 		boolean canCreate = true;
@@ -270,9 +254,8 @@ public class ListNotebookFragment extends ListFragment implements
 		if (canCreate) {
 			Notebook notebook = new Notebook();
 			notebook.setName(getString(R.string.create_notebook));
-			notebooks.add(notebook);
+			notebooks.add(0, notebook);
 		}
->>>>>>> f9a591878e831aa79a61b64fc61adf28ed3c6f1e
 
 		mAdapter.updateData(notebooks);
 	}
