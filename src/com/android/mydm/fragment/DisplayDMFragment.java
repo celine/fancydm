@@ -10,12 +10,9 @@ import org.apache.thrift.transport.TTransportException;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -28,7 +25,6 @@ import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.util.LruCache;
 import android.util.Log;
-import android.view.ActionProvider;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -36,33 +32,25 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
-import android.widget.RelativeLayout;
-import android.widget.ShareActionProvider;
 import android.widget.TextView;
 
 import com.android.mydm.CheckListApplication;
 import com.android.mydm.R;
-import com.android.mydm.R.dimen;
-import com.android.mydm.R.id;
-import com.android.mydm.R.layout;
-import com.android.mydm.R.menu;
 import com.android.mydm.method.FindNote;
 import com.android.mydm.method.FindNote.FindNoteParams;
-import com.android.mydm.method.ShareNote;
-import com.android.mydm.method.ShareNote.ShareNoteParams;
 import com.android.mydm.util.BitmapUtils;
 import com.android.mydm.view.DMLayout;
 import com.evernote.client.oauth.android.EvernoteSession;
 import com.evernote.edam.error.EDAMNotFoundException;
 import com.evernote.edam.error.EDAMSystemException;
 import com.evernote.edam.error.EDAMUserException;
-import com.evernote.edam.notestore.NoteFilter;
-import com.evernote.edam.notestore.NoteList;
 import com.evernote.edam.type.Data;
+import com.evernote.edam.type.LazyMap;
 import com.evernote.edam.type.Note;
 import com.evernote.edam.type.Resource;
 
@@ -160,10 +148,15 @@ public class DisplayDMFragment extends Fragment implements
 					resIds.add(res.getGuid());
 				}
 			}
+			
+			
 			mnote.notebookId = mNotebookId;
 			mnote.noteId = note.getGuid();
 			mnote.resIds = resIds;
 			mnote.title = note.getTitle();
+			
+			mnote.checked = Boolean.valueOf(note.getAttributes().getApplicationData().getFullMap().get("checked"));
+			
 			myNotes.add(mnote);
 		}
 
@@ -343,6 +336,54 @@ public class DisplayDMFragment extends Fragment implements
 					ft.commit();
 				}
 			});
+			
+			CheckBox checkbox = (CheckBox) item.findViewById(R.id.checkbox);
+			checkbox.setChecked(note.checked);
+			checkbox.setTag(note);
+			
+			checkbox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+				@Override
+				public void onCheckedChanged(
+						CompoundButton paramCompoundButton, final boolean paramBoolean) {
+					Log.d("AAAA", "checked changed");
+					
+					MyNote mnote = (MyNote)paramCompoundButton.getTag();
+					
+					(new AsyncTask<MyNote, Void, Void> () {
+
+						@Override
+						protected Void doInBackground(MyNote... mnotes) {
+							MyNote mNote = mnotes[0];
+							
+							String token = mNote.token == null ? mSession.getAuthToken():mNote.token;
+							try {
+								mSession.createNoteStore().setNoteApplicationDataEntry(token, mNote.noteId, "checked", Boolean.valueOf(paramBoolean).toString());
+								
+							} catch (TTransportException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (EDAMUserException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (EDAMSystemException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (EDAMNotFoundException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (TException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							
+							return null;
+						}
+						
+					}).execute(mnote);
+				}
+				
+			});
 
 			mLayout.addChildView(item, width);
 		}
@@ -383,7 +424,14 @@ public class DisplayDMFragment extends Fragment implements
 				FindNoteParams fParams = new FindNoteParams();
 				fParams.notebookId = notebookId;
 				FindNote fNote = new FindNote(mSession);
-				return fNote.execute(fParams);
+				List<Note> notes = fNote.execute(fParams);
+				
+				for(Note note:notes) {
+					LazyMap map = mSession.createNoteStore().getNoteApplicationData(mSession.getAuthToken(), note.getGuid());
+					note.getAttributes().setApplicationData(map);
+				}
+				
+				return notes;
 			} catch (TTransportException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
