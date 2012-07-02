@@ -25,13 +25,15 @@ import com.evernote.edam.util.EDAMUtil;
 
 public class CreateNote extends Method {
 
-	public static class CreateNoteParams extends Params {
+	public static class NoteParams extends Params {
+		public String noteId;
 		public String title;
 		public String description;
 		public String mimeType;
 		public String f;
 		public List<String> tagNames;
 		public String notebookId;
+		public boolean checked;
 	}
 
 	public CreateNote(EvernoteSession session) {
@@ -43,7 +45,7 @@ public class CreateNote extends Method {
 			EDAMNotFoundException, TException {
 		// Create a new Resource
 		Resource resource = new Resource();
-		CreateNoteParams cp = (CreateNoteParams) params;
+		NoteParams cp = (NoteParams) params;
 
 		// Create a new Note
 		Note note = new Note();
@@ -77,8 +79,9 @@ public class CreateNote extends Method {
 		// Set the note's ENML content. Learn about ENML at
 		// http://dev.evernote.com/documentation/cloud/chapters/ENML.php
 
-		String content = NOTE_PREFIX + "<h1>" + cp.title + "</h1><p>"
-				+ cp.description + "</p>" + resource_data + todo + NOTE_SUFFIX;
+		String content = NOTE_PREFIX + "<h1>" + cp.title + "</h1>"
+				+ resource_data + "<p>" + cp.description + "</p>" + todo
+				+ NOTE_SUFFIX;
 		Log.d("Evernote", "content " + content);
 		note.setContent(content);
 

@@ -89,11 +89,13 @@ public class CreateNoteFragment extends Fragment {
 		Uri uri;
 		switch (requestCode) {
 		case ACTIVITY_CAPTURE:
-			Log.d(LOG_TAG, "action " + data.getAction());
+			Log.d(LOG_TAG, "action " + data.getDataString());
 			BitmapFactory.Options options = new BitmapFactory.Options();
+
 			options.inJustDecodeBounds = false;
-			uri = Uri.parse(data.getAction());
+			uri = data.getData();
 			setImage(uri);
+			break;
 		case ACTIVITY_PICK:
 			Uri selectedImage = data.getData();
 			String[] queryColumns = { MediaStore.Images.Media.DATA,
@@ -112,6 +114,7 @@ public class CreateNoteFragment extends Fragment {
 			cursor.close();
 			uri = Uri.fromFile(file);
 			setImage(uri);
+			break;
 		}
 	}
 
@@ -122,37 +125,12 @@ public class CreateNoteFragment extends Fragment {
 	}
 
 	public void launchCamera() {
-		File dir = new File(Environment.getExternalStorageDirectory(), "tmp");
-		if (!dir.canWrite()) {
-			return;
-		}
-		if (!dir.exists()) {
-			dir.mkdirs();
-		}
 		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-		File file = new File(dir, String.valueOf(System.currentTimeMillis())
-				+ ".jpg");
-		Uri mImageCaptureUri;
-		try {
-			file.createNewFile();
-			mImageCaptureUri = Uri.fromFile(file);
-
-		} catch (IOException e) {
-			Log.e(LOG_TAG, "error", e);
-			return;
-		}
-		intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageCaptureUri);
-		// intent.putExtra("crop", "true");
-		// intent.putExtra("aspectX", 1);
-		// intent.putExtra("aspectY", 1);
-		// intent.putExtra("outputX", 640);
-		// intent.putExtra("outputY", 480);
-
-		// intent.putExtra("return-data", true);
 		startActivityForResult(intent, ACTIVITY_CAPTURE);
 	}
 
 	boolean modified = false;
+	String noteId;
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
@@ -167,6 +145,7 @@ public class CreateNoteFragment extends Fragment {
 		MyNote note = getArguments().getParcelable("note");
 		if (note != null) {
 			modified = true;
+			noteId = note.noteId;
 			mTitle.setText(note.title);
 			mDescription.setText(note.description);
 			if (note.resIds != null && note.resIds.size() > 0) {
@@ -228,6 +207,7 @@ public class CreateNoteFragment extends Fragment {
 		intent.putExtra("title", mTitle.getText().toString());
 		intent.putExtra("description", mDescription.getText().toString());
 		intent.putExtra("notebookId", targetNotebookId);
+		intent.putExtra("noteId", noteId);
 		String tag = getActivity().getIntent().getStringExtra("tag");
 		if (tag == null) {
 		}
@@ -255,8 +235,9 @@ public class CreateNoteFragment extends Fragment {
 				getActivity(),
 				getActivity().getString(
 						modified ? R.string.update_dm : R.string.create_dm),
-				Toast.LENGTH_LONG).show();
+				Toast.LENGTH_SHORT).show();
 		setEmptyImage();
+		getActivity().onBackPressed();
 
 	}
 

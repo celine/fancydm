@@ -136,15 +136,16 @@ containing a value of this type.
         public static final int gallery_sidebar=0x7f030008;
         public static final int image=0x7f030009;
         public static final int item_create_note=0x7f03000a;
-        public static final int main=0x7f03000b;
-        public static final int main_content=0x7f03000c;
-        public static final int notebook=0x7f03000d;
-        public static final int notebook_holder=0x7f03000e;
-        public static final int page=0x7f03000f;
-        public static final int progress_dialog=0x7f030010;
-        public static final int switch_dm=0x7f030011;
-        public static final int title=0x7f030012;
-        public static final int web=0x7f030013;
+        public static final int listview=0x7f03000b;
+        public static final int main=0x7f03000c;
+        public static final int main_content=0x7f03000d;
+        public static final int notebook=0x7f03000e;
+        public static final int notebook_holder=0x7f03000f;
+        public static final int page=0x7f030010;
+        public static final int progress_dialog=0x7f030011;
+        public static final int switch_dm=0x7f030012;
+        public static final int title=0x7f030013;
+        public static final int web=0x7f030014;
     }
     public static final class menu {
         public static final int create_note=0x7f080000;
@@ -175,6 +176,7 @@ containing a value of this type.
         public static final int generate_share_url=0x7f06000f;
         public static final int hello=0x7f060000;
         public static final int loading=0x7f060009;
+        public static final int no_data=0x7f06001e;
         public static final int pick_photo=0x7f060014;
         public static final int progress=0x7f06000e;
         public static final int save_photo=0x7f060004;

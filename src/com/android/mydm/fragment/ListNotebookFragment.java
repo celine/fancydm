@@ -72,6 +72,12 @@ public class ListNotebookFragment extends ListFragment implements
 	}
 
 	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.listview, container, false);
+	}
+
+	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		Notebook notebook = (Notebook) l.getItemAtPosition(position);
 
