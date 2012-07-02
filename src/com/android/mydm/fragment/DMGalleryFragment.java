@@ -202,10 +202,16 @@ public class DMGalleryFragment extends Fragment {
 				convertView = mInflater.inflate(R.layout.dm_detail, parent,
 						false);
 			}
+			Bitmap bitmap;
 			final MyNote note = getItem(position);
-			convertView.setTag(note.resIds.get(0));
-			String resId = note.resIds.get(0);
-			Bitmap bitmap = memCache.get(resId);
+			if (note.resIds != null && note.resIds.size() > 0) {
+				convertView.setTag(note.resIds.get(0));
+				String resId = note.resIds.get(0);
+				bitmap = memCache.get(resId);
+			} else {
+				bitmap = BitmapFactory.decodeResource(mActivity.getResources(),
+						R.drawable.ic_missing_thumbnail_picture);
+			}
 			TextView mTitle = (TextView) convertView
 					.findViewById(R.id.detail_title);
 			final View progress = convertView.findViewById(R.id.progress);

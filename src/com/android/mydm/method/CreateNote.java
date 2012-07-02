@@ -40,35 +40,39 @@ public class CreateNote extends Method {
 	public Object execute(Params params) throws IOException,
 			TTransportException, EDAMUserException, EDAMSystemException,
 			EDAMNotFoundException, TException {
-		CreateNoteParams cp = (CreateNoteParams) params;
-		InputStream in;
-		in = new BufferedInputStream(new FileInputStream(cp.f));
-		FileData data = new FileData(EDAMUtil.hash(in), new File(cp.f));
-		in.close();
-
 		// Create a new Resource
 		Resource resource = new Resource();
-		resource.setData(data);
-		resource.setMime(cp.mimeType);
+		CreateNoteParams cp = (CreateNoteParams) params;
 
 		// Create a new Note
 		Note note = new Note();
 		note.setTitle(cp.title);
-
+		Log.d("Notebook Create", "notebookId " + cp.notebookId);
 		note.setNotebookGuid(cp.notebookId);
 		NoteAttributes attrs = new NoteAttributes();
 		attrs.setContentClass(CONTENT_CLASS);
 		note.setAttributes(attrs);
-		note.addToResources(resource);
-		//note.setTagNames(cp.tagNames);
+		InputStream in;
+		String resource_data = "";
+		if (cp.f != null) {
+			in = new BufferedInputStream(new FileInputStream(cp.f));
+			FileData data = new FileData(EDAMUtil.hash(in), new File(cp.f));
+			in.close();
+			resource.setData(data);
+			resource.setMime(cp.mimeType);
+			resource_data = "<en-media type=\"" + cp.mimeType + "\" hash=\""
+					+ EDAMUtil.bytesToHex(resource.getData().getBodyHash())
+					+ "\"/>";
+
+			note.addToResources(resource);
+		}
+		// note.setTagNames(cp.tagNames);
 		String todo = "<en-todo/>Item completed<br/>";
 		// Set the note's ENML content. Learn about ENML at
 		// http://dev.evernote.com/documentation/cloud/chapters/ENML.php
+
 		String content = NOTE_PREFIX + "<h1>" + cp.title + "</h1><p>"
-				+ cp.description + "</p>" + "<en-media type=\"" + cp.mimeType
-				+ "\" hash=\""
-				+ EDAMUtil.bytesToHex(resource.getData().getBodyHash())
-				+ "\"/>" + todo + NOTE_SUFFIX;
+				+ cp.description + "</p>" + resource_data + todo + NOTE_SUFFIX;
 		Log.d("Evernote", "content " + content);
 		note.setContent(content);
 

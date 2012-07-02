@@ -122,7 +122,8 @@ public class DisplayDMFragment extends Fragment implements
 			return true;
 		case R.id.create_note:
 			FragmentTransaction ft = getFragmentManager().beginTransaction();
-			CreateNoteFragment fragment = new CreateNoteFragment();
+			CreateNoteFragment fragment = CreateNoteFragment
+					.newInstance(mNotebookId);
 			ft.add(R.id.panel1, fragment, "detail");
 			ft.addToBackStack(null);
 			ft.commit();
@@ -195,7 +196,7 @@ public class DisplayDMFragment extends Fragment implements
 		public ArrayList<String> resIds = new ArrayList<String>();
 		public String content;
 		public String small_thumb;
-		
+
 		public String token = null;
 
 		public MyNote() {
@@ -268,37 +269,44 @@ public class DisplayDMFragment extends Fragment implements
 			int position = params[0];
 			MyNote note = mNotes.get(position);
 
-			if (note.resIds.size() > 0) {
-				String resId = note.resIds.get(0);
-				Resource res;
-				try {
+			try {
+				Bitmap bitmap;
+				String resId = "empty";
+				if (note.resIds.size() > 0) {
+					resId = note.resIds.get(0);
+					Resource res;
 					res = mSession.createNoteStore().getResource(
 							mSession.getAuthToken(), resId, true, false, false,
 							false);
 					Data data = res.getData();
-					Bitmap bitmap = BitmapFactory.decodeByteArray(
-							data.getBody(), 0, data.getSize());
-					mBitmap = BitmapUtils.resizeAndCrop(bitmap, width, height);
-					String size = width + "x" + height;
-					note.small_thumb = resId + "_" + size;
-					memCache.put(note.small_thumb, mBitmap);
-				} catch (TTransportException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (EDAMUserException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (EDAMSystemException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (EDAMNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (TException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					bitmap = BitmapFactory.decodeByteArray(data.getBody(), 0,
+							data.getSize());
+				} else {
+					bitmap = BitmapFactory.decodeResource(
+							mActivity.getResources(),
+							R.drawable.ic_missing_thumbnail_picture);
 				}
+				mBitmap = BitmapUtils.resizeAndCrop(bitmap, width, height);
+				String size = width + "x" + height;
+				note.small_thumb = resId + "_" + size;
+				memCache.put(note.small_thumb, mBitmap);
+			} catch (TTransportException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (EDAMUserException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (EDAMSystemException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (EDAMNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (TException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
+
 			return position;
 		}
 

@@ -55,6 +55,7 @@ public class CreateNoteFragment extends Fragment {
 	private static final String LOG_TAG = "CreateNoteFragment";
 	EditText mTitle;
 	EditText mDescription;
+	String targetNotebookId;
 
 	public CreateNoteFragment() {
 
@@ -149,6 +150,7 @@ public class CreateNoteFragment extends Fragment {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		Log.d(LOG_TAG, "onActivityCreate");
+		targetNotebookId = getArguments().getString("notebookId");
 		this.setHasOptionsMenu(true);
 		getActivity().getActionBar().setTitle(R.string.create_dm);
 		super.onActivityCreated(savedInstanceState);
@@ -183,7 +185,7 @@ public class CreateNoteFragment extends Fragment {
 	}
 
 	private void setEmptyImage() {
-		mImg.setImageResource(R.drawable.ic_gallery_empty2);
+		mImg.setImageResource(R.drawable.ic_missing_thumbnail_picture);
 
 	}
 
@@ -201,25 +203,29 @@ public class CreateNoteFragment extends Fragment {
 			intent.setClass(getActivity(), BackgroundService.class);
 			intent.putExtra("title", mTitle.getText().toString());
 			intent.putExtra("description", mDescription.getText().toString());
+			intent.putExtra("notebookId", targetNotebookId);
 			String tag = getActivity().getIntent().getStringExtra("tag");
 			if (tag == null) {
 			}
 			intent.putExtra("tag", tag);
 			Log.d(LOG_TAG, "start Evernote Service");
 			LruCache<String, Bitmap> memCache = application.getMemCache();
-			Bitmap bitmap = memCache.get(bitmapKey);
-			ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-			bitmap.compress(Bitmap.CompressFormat.JPEG, 40, bytes);
-			File file = new File(getActivity().getCacheDir(), bitmapKey
-					+ ".jpg");
-			try {
-				file.createNewFile();
-				FileOutputStream stream = new FileOutputStream(file);
-				stream.write(bytes.toByteArray());
-				intent.setData(Uri.fromFile(file));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			if (bitmapKey != null) {
+				Bitmap bitmap = memCache.get(bitmapKey);
+				ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+				bitmap.compress(Bitmap.CompressFormat.JPEG, 40, bytes);
+				File file = new File(getActivity().getCacheDir(), bitmapKey
+						+ ".jpg");
+
+				try {
+					file.createNewFile();
+					FileOutputStream stream = new FileOutputStream(file);
+					stream.write(bytes.toByteArray());
+					intent.setData(Uri.fromFile(file));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 			getActivity().startService(intent);
 			Toast.makeText(getActivity(),
@@ -294,5 +300,13 @@ public class CreateNoteFragment extends Fragment {
 			return false;
 		}
 
+	}
+
+	public static CreateNoteFragment newInstance(String id) {
+		CreateNoteFragment fragment = new CreateNoteFragment();
+		Bundle args = new Bundle();
+		args.putString("notebookId", id);
+		fragment.setArguments(args);
+		return fragment;
 	}
 }

@@ -71,16 +71,18 @@ containing a value of this type.
         public static final int ic_menu_delete=0x7f02000d;
         public static final int ic_menu_edit=0x7f02000e;
         public static final int ic_menu_save=0x7f02000f;
-        public static final int navstrip_translucent=0x7f020010;
-        public static final int preview=0x7f020011;
-        public static final int rack_back=0x7f020012;
-        public static final int rounded_corners_white=0x7f020013;
+        public static final int ic_missing_thumbnail_picture=0x7f020010;
+        public static final int navstrip_translucent=0x7f020011;
+        public static final int preview=0x7f020012;
+        public static final int rack_back=0x7f020013;
+        public static final int rounded_corners_white=0x7f020014;
     }
     public static final class id {
         public static final int DMGalleryContainer=0x7f09001e;
         public static final int action_cancel_delete=0x7f090029;
         public static final int action_confirm_delete=0x7f090028;
         public static final int action_delete=0x7f090027;
+        public static final int action_edit=0x7f09002b;
         public static final int action_share=0x7f09002a;
         public static final int body=0x7f09001c;
         public static final int border=0x7f090012;
@@ -160,6 +162,7 @@ containing a value of this type.
         public static final int confirm_delete=0x7f060009;
         public static final int create_dm=0x7f060006;
         public static final int create_notebook=0x7f060010;
+        public static final int create_success=0x7f060018;
         public static final int delete=0x7f06000c;
         public static final int description=0x7f060015;
         public static final int done=0x7f060011;
