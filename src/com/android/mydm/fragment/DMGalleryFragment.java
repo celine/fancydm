@@ -144,9 +144,6 @@ public class DMGalleryFragment extends Fragment {
 			ft.addToBackStack(null);
 			ft.commit();
 			return true;
-		case R.id.refresh_note:
-			getLoaderManager().getLoader(0).onContentChanged();
-			return true;
 		}
 		return false;
 	}

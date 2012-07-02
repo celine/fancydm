@@ -80,11 +80,11 @@ containing a value of this type.
     }
     public static final class id {
         public static final int DMGalleryContainer=0x7f090020;
-        public static final int action_cancel_delete=0x7f09002f;
-        public static final int action_confirm_delete=0x7f09002e;
-        public static final int action_delete=0x7f09002d;
-        public static final int action_edit=0x7f09002c;
-        public static final int action_share=0x7f09002b;
+        public static final int action_cancel_delete=0x7f09002e;
+        public static final int action_confirm_delete=0x7f09002d;
+        public static final int action_delete=0x7f09002c;
+        public static final int action_edit=0x7f09002b;
+        public static final int action_share=0x7f09002a;
         public static final int body=0x7f09001e;
         public static final int border=0x7f090014;
         public static final int btn_left=0x7f090023;
@@ -120,7 +120,6 @@ containing a value of this type.
         public static final int photo=0x7f090025;
         public static final int progress=0x7f090009;
         public static final int rack=0x7f09001b;
-        public static final int refresh_note=0x7f09002a;
         public static final int refresh_notebook=0x7f090028;
         public static final int save=0x7f09000d;
         public static final int text=0x7f09001a;
@@ -186,11 +185,13 @@ containing a value of this type.
         public static final int progress=0x7f06000e;
         public static final int refresh=0x7f06001f;
         public static final int save_photo=0x7f060004;
+        public static final int save_to_notebook=0x7f060022;
         public static final int share=0x7f06000c;
         public static final int start_delete_note=0x7f06001b;
         public static final int take_photo=0x7f060013;
         public static final int title=0x7f060015;
         public static final int update_dm=0x7f060007;
+        public static final int update_fail=0x7f060023;
         public static final int update_to_server=0x7f060020;
     }
     public static final class style {

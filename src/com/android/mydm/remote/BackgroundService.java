@@ -67,12 +67,15 @@ public class BackgroundService extends IntentService {
 				Toast.makeText(getBaseContext(),
 						getString(R.string.create_success), Toast.LENGTH_LONG)
 						.show();
+				Log.d(LOG_TAG, "success");
+				return;
 			} else if (ACTION_EDIT_NOTE.equals(intent.getAction())) {
 				MyNote note = intent.getParcelableExtra("note");
 				editNote(session, note, intent.getData());
 				Toast.makeText(getBaseContext(),
 						getString(R.string.edit_success), Toast.LENGTH_LONG)
 						.show();
+				return;
 			} else if (ACTION_SYNC_TO_SERVER.equals(intent.getAction())) {
 				ArrayList<MyNote> notes = intent
 						.getParcelableArrayListExtra("notes");
@@ -82,6 +85,7 @@ public class BackgroundService extends IntentService {
 				Toast.makeText(getBaseContext(),
 						getString(R.string.edit_success), Toast.LENGTH_LONG)
 						.show();
+				return;
 			}
 		} catch (TTransportException e) {
 			Log.e(LOG_TAG, "error", e);
@@ -96,6 +100,8 @@ public class BackgroundService extends IntentService {
 		} catch (TException e) {
 			Log.e(LOG_TAG, "error", e);
 		}
+		Toast.makeText(getBaseContext(), getString(R.string.update_fail),
+				Toast.LENGTH_LONG).show();
 	}
 
 	private void editNote(EvernoteSession session, MyNote note, Uri data)
@@ -143,6 +149,7 @@ public class BackgroundService extends IntentService {
 		params.description = note.description;
 		params.checked = note.checked;
 		params.notebookId = note.notebookId;
+		Log.d(LOG_TAG, "notebookId " + note.notebookId);
 		File file = null;
 		if (data != null) {
 			file = new File(data.getPath());

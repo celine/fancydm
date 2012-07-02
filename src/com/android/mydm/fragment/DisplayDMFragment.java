@@ -213,6 +213,7 @@ public class DisplayDMFragment extends Fragment implements
 			small_thumb = in.readString();
 			noteId = in.readString();
 			description = in.readString();
+			notebookId = in.readString();
 		}
 
 		@Override
@@ -230,6 +231,7 @@ public class DisplayDMFragment extends Fragment implements
 			dest.writeString(small_thumb);
 			dest.writeString(noteId);
 			dest.writeString(description);
+			dest.writeString(notebookId);
 		}
 
 		public static final Parcelable.Creator<MyNote> CREATOR = new Parcelable.Creator<MyNote>() {
@@ -431,6 +433,7 @@ public class DisplayDMFragment extends Fragment implements
 				deliverResult(mNotes);
 			}
 			if (takeContentChanged() || mNotes == null) {
+				Log.d(LOG_TAG,"change");
 				forceLoad();
 			}
 		}

@@ -156,6 +156,7 @@ public class CreateNoteFragment extends Fragment {
 				}
 			}
 		} else {
+			mNote = new MyNote();
 			modified = false;
 			mNote.notebookId = getArguments().getString("notebookId");
 		}
@@ -177,7 +178,6 @@ public class CreateNoteFragment extends Fragment {
 			return true;
 		case R.id.camera:
 
-			Log.d(LOG_TAG, "launchCamera ");
 			launchCamera();
 			return true;
 		case R.id.photo:
@@ -208,7 +208,6 @@ public class CreateNoteFragment extends Fragment {
 		if (tag == null) {
 		}
 		intent.putExtra("tag", tag);
-		Log.d(LOG_TAG, "start Evernote Service");
 		if (bitmapKey != null) {
 			Bitmap bitmap = memCache.get(bitmapKey);
 			ByteArrayOutputStream bytes = new ByteArrayOutputStream();

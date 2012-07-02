@@ -54,7 +54,9 @@
         <service android:name="com.android.mydm.remote.BackgroundService" >
         </service>
 
-        <activity android:name=".SwitchCheckList" >
+        <activity
+            android:name=".SwitchCheckList"
+            android:label="@string/save_to_notebook" >
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
 
@@ -62,6 +64,18 @@
 
                 <data
                     android:host="sandbox.evernote.com"
+                    android:pathPattern="/shard/.*"
+                    android:scheme="https" />
+
+                <category android:name="android.intent.category.BROWSABLE" />
+            </intent-filter>
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <action android:name="android.intent.action.VIEW" />
+
+                <data
+                    android:host="www.evernote.com"
                     android:pathPattern="/shard/.*"
                     android:scheme="https" />
 

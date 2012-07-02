@@ -35,5 +35,7 @@
     <string name="refresh">Refresh</string>
     <string name="update_to_server">Update to server</string>
     <string name="check_item">This item is completed</string>
+    <string name="save_to_notebook">Save to notebook</string>
+    <string name="update_fail">Update fail</string>
 
 </resources>
