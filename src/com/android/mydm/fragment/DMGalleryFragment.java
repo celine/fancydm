@@ -2,6 +2,8 @@ package com.android.mydm.fragment;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -48,6 +50,7 @@ import com.evernote.edam.error.EDAMNotFoundException;
 import com.evernote.edam.error.EDAMSystemException;
 import com.evernote.edam.error.EDAMUserException;
 import com.evernote.edam.type.Data;
+import com.evernote.edam.type.Note;
 import com.evernote.edam.type.Resource;
 
 public class DMGalleryFragment extends Fragment {
@@ -379,6 +382,9 @@ public class DMGalleryFragment extends Fragment {
 				Bitmap bitmap = BitmapFactory.decodeByteArray(data.getBody(),
 						0, data.getSize());
 				memCache.put(resId, bitmap);
+				String token = mNote.token == null ? mSession.getAuthToken():mNote.token;
+				Note note = mSession.createNoteStore().getNote(token, mNote.noteId, true, false, false, false);
+				mNote.content = note.getContent();
 				return bitmap;
 			} catch (TTransportException e) {
 				// TODO Auto-generated catch block
@@ -409,6 +415,17 @@ public class DMGalleryFragment extends Fragment {
 			if (resId.equals(mView.getTag())) {
 				ImageView mImage = (ImageView) mView.findViewById(R.id.img);
 				mImage.setImageBitmap(result);
+			}
+			
+			if(mNote.content!=null) {
+				TextView mDesc = (TextView) mView.findViewById(R.id.detail_description);
+				Pattern contentPattern = Pattern.compile("<p>(.*)<\\/p>");
+				Matcher m = contentPattern.matcher(mNote.content);
+				
+				if(m.find()) {
+					mDesc.setText(m.group(1));
+				}
+				
 			}
 		}
 
