@@ -542,8 +542,13 @@ public class DMGalleryFragment extends Fragment {
 				Pattern contentPattern = Pattern.compile("<p>(.*)<\\/p>");
 				Matcher m = contentPattern.matcher(mNote.content);
 
-				if (m.find()) {
-					mDesc.setText(m.group(1));
+				if (m.find() && mDesc!=null) {
+					String desc = m.group(1);
+					if(desc == null) {
+						desc = "";
+					}
+					mDesc.setText(desc);
+					
 				}
 
 			}
