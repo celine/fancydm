@@ -10,6 +10,8 @@ import org.apache.thrift.transport.TTransportException;
 import com.android.mydm.R;
 import com.android.mydm.method.CreateNote;
 import com.android.mydm.method.CreateNote.CreateNoteParams;
+import com.android.mydm.method.EditNote;
+import com.android.mydm.method.EditNote.EditNoteParams;
 import com.android.mydm.util.EvernoteUtil;
 import com.evernote.client.oauth.android.EvernoteSession;
 import com.evernote.edam.error.EDAMNotFoundException;
@@ -24,6 +26,7 @@ import android.widget.Toast;
 
 public class BackgroundService extends IntentService {
 	public static final String ACTION_CREATE_NOTE = "com.android.text.ACTION_CREATE_NOTE";
+	public static final String ACTION_EDIT_NOTE = "com.android.text.ACTION_EDIT_NOTE";
 	private static final String LOG_TAG = "EvernoteBackgroundService";
 
 	public BackgroundService() {
@@ -73,6 +76,13 @@ public class BackgroundService extends IntentService {
 				Toast.makeText(getBaseContext(),
 						getString(R.string.create_success), Toast.LENGTH_SHORT)
 						.show();
+			} else if (ACTION_EDIT_NOTE.equals(intent.getAction())) {
+				EditNoteParams eParams = new EditNoteParams();
+				EditNote editNote = new EditNote(session);
+				editNote.execute(eParams);
+				Toast.makeText(getBaseContext(),
+						getString(R.string.edit_success), Toast.LENGTH_SHORT)
+						.show();
 			}
 		} catch (TTransportException e) {
 			Log.e(LOG_TAG, "error", e);
@@ -88,5 +98,4 @@ public class BackgroundService extends IntentService {
 			Log.e(LOG_TAG, "error", e);
 		}
 	}
-
 }

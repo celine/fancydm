@@ -1,6 +1,7 @@
 package com.android.mydm.fragment;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -19,6 +20,7 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.util.LruCache;
 import android.util.Log;
 import android.util.SparseArray;
@@ -37,10 +39,13 @@ import android.widget.Gallery;
 import android.widget.ImageView;
 import android.widget.ShareActionProvider;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.mydm.CheckListApplication;
 import com.android.mydm.R;
 import com.android.mydm.fragment.DisplayDMFragment.MyNote;
+import com.android.mydm.method.DeleteNote;
+import com.android.mydm.method.DeleteNote.DeleteNoteParams;
 import com.android.mydm.method.ShareNote;
 import com.android.mydm.method.ShareNote.ShareNoteParams;
 import com.evernote.client.oauth.android.EvernoteSession;
@@ -54,7 +59,6 @@ public class DMGalleryFragment extends Fragment {
 	DMPageAdapter mAdapter;
 	private static final String LOG_TAG = "DMGalleryFragment";
 	Gallery mGallery;
-
 	ShareActionProvider mShareActionProvider;
 	public SparseArray<String> mUrlArray;
 
@@ -97,8 +101,10 @@ public class DMGalleryFragment extends Fragment {
 	public void onPrepareOptionsMenu(Menu menu) {
 		Log.d(LOG_TAG, "onPrepareOptionsMenu");
 		MenuItem item = menu.findItem(R.id.action_share);
+		if (item == null) {
+			return;
+		}
 		int currentItem = mGallery.getSelectedItemPosition();
-		Log.d(LOG_TAG, "currentItem " + currentItem);
 		if (mUrlArray != null) {
 			String url = mUrlArray.get(currentItem);
 			Log.d(LOG_TAG, "url " + url);
@@ -120,11 +126,101 @@ public class DMGalleryFragment extends Fragment {
 		switch (item.getItemId()) {
 		case android.R.id.home:
 			getActivity().onBackPressed();
+			return true;
+		case R.id.action_confirm_delete:
+			new DeleteNoteTask(mSession, getActivity(), mGallery).execute();
 			break;
-		case R.id.action_share:
-			break;
+		case R.id.action_edit:
+			MyNote note = (MyNote) mGallery.getSelectedItem();
+			Fragment fragment = CreateNoteFragment.newInstance(note);
+			FragmentTransaction ft = getFragmentManager().beginTransaction();
+			ft.add(R.id.panel1, fragment, "edit");
+			ft.addToBackStack(null);
+			ft.commit();
+			return true;
 		}
-		return true;
+		return false;
+	}
+
+	public static class DeleteNoteTask extends AsyncTask<Void, Void, Integer> {
+		Context mContext;
+		DMPageAdapter mAdapter;
+		String noteId;
+		EvernoteSession mSession;
+		Gallery mGallery;
+
+		public DeleteNoteTask(EvernoteSession session, Context context,
+				Gallery gallery) {
+			mContext = context;
+			MyNote note = (MyNote) gallery.getSelectedItem();
+			this.noteId = note.noteId;
+			mGallery = gallery;
+			mAdapter = (DMPageAdapter) gallery.getAdapter();
+			mSession = session;
+		}
+
+		@Override
+		protected void onPreExecute() {
+			Toast.makeText(mContext,
+					mContext.getString(R.string.start_delete_note),
+					Toast.LENGTH_SHORT).show();
+		}
+
+		@Override
+		protected Integer doInBackground(Void... params) {
+			DeleteNoteParams dParams = new DeleteNoteParams();
+			dParams.noteId = noteId;
+			try {
+				return new DeleteNote(mSession).execute(dParams);
+			} catch (TTransportException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (EDAMUserException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (EDAMSystemException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (EDAMNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (TException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Integer result) {
+			String message = mContext
+					.getString(result != null ? R.string.delete_success
+							: R.string.delete_fail);
+			Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
+			if (result != null) {
+				List<MyNote> notes = mAdapter.getData();
+				List<MyNote> newNotes = new ArrayList<MyNote>();
+				int position = 0;
+				for (int i = 0; i < notes.size(); i++) {
+					MyNote note = notes.get(i);
+					if (!note.noteId.equals(noteId)) {
+						newNotes.add(note);
+					} else {
+						position = i;
+					}
+				}
+				if (position > newNotes.size()) {
+					position = newNotes.size() - 1;
+				}
+				mAdapter.updateData(newNotes);
+				if (newNotes.size() > 0) {
+					mGallery.setSelection(position);
+				}
+			}
+		}
 	}
 
 	public void onActivityCreated(Bundle savedInstanceState) {
@@ -175,6 +271,10 @@ public class DMGalleryFragment extends Fragment {
 		public void updateData(List<MyNote> notes) {
 			this.mNotes = notes;
 			this.notifyDataSetChanged();
+		}
+
+		public List<MyNote> getData() {
+			return this.mNotes;
 		}
 
 		@Override
@@ -407,10 +507,10 @@ public class DMGalleryFragment extends Fragment {
 
 			String resId = mNote.resIds.get(0);
 			if (resId.equals(mView.getTag())) {
-				ImageView mImage = (ImageView) mView.findViewById(R.id.img);
+				ImageView mImage = (ImageView) ((mView instanceof ImageView) ? mView
+						: mView.findViewById(R.id.img));
 				mImage.setImageBitmap(result);
 			}
 		}
-
 	}
 }

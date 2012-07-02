@@ -9,6 +9,7 @@ import com.evernote.client.oauth.android.EvernoteSession;
 import com.evernote.edam.error.EDAMNotFoundException;
 import com.evernote.edam.error.EDAMSystemException;
 import com.evernote.edam.error.EDAMUserException;
+import com.evernote.edam.type.LazyMap;
 import com.evernote.edam.type.Note;
 
 public class EditNote extends Method {

@@ -160,6 +160,7 @@ public class DisplayDMFragment extends Fragment implements
 					resIds.add(res.getGuid());
 				}
 			}
+			mnote.notebookId = mNotebookId;
 			mnote.noteId = note.getGuid();
 			mnote.resIds = resIds;
 			mnote.title = note.getTitle();
@@ -190,9 +191,11 @@ public class DisplayDMFragment extends Fragment implements
 	}
 
 	public static class MyNote implements Parcelable {
+		public String notebookId;
 		public String noteId;
 		boolean checked = false;
 		public String title;
+		public String description;
 		public ArrayList<String> resIds = new ArrayList<String>();
 		public String content;
 		public String small_thumb;
@@ -312,7 +315,7 @@ public class DisplayDMFragment extends Fragment implements
 
 		@Override
 		protected void onPostExecute(Integer position) {
-			MyNote note = mNotes.get(position);
+			final MyNote note = mNotes.get(position);
 			View item = LayoutInflater.from(mActivity).inflate(
 					R.layout.action_dm, null, false);
 			LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(width,
@@ -333,6 +336,7 @@ public class DisplayDMFragment extends Fragment implements
 					Bundle args = new Bundle();
 					args.putParcelableArrayList("notes", mNotes);
 					args.putInt("position", (Integer) v.getTag());
+					args.putString("notebookId", note.notebookId);
 					fragment.setArguments(args);
 					ft.add(R.id.panel1, fragment, "create_note");
 					ft.addToBackStack(null);

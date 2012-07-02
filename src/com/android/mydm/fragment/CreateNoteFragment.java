@@ -12,6 +12,8 @@ import com.android.mydm.R.drawable;
 import com.android.mydm.R.id;
 import com.android.mydm.R.layout;
 import com.android.mydm.R.string;
+import com.android.mydm.fragment.DMGalleryFragment.GetNoteResourceTask;
+import com.android.mydm.fragment.DisplayDMFragment.MyNote;
 import com.android.mydm.remote.BackgroundService;
 import com.android.mydm.util.BitmapUtils;
 import com.evernote.client.oauth.android.EvernoteSession;
@@ -56,6 +58,9 @@ public class CreateNoteFragment extends Fragment {
 	EditText mTitle;
 	EditText mDescription;
 	String targetNotebookId;
+
+	LruCache<String, Bitmap> memCache;
+	EvernoteSession mSession;
 
 	public CreateNoteFragment() {
 
@@ -147,12 +152,37 @@ public class CreateNoteFragment extends Fragment {
 		startActivityForResult(intent, ACTIVITY_CAPTURE);
 	}
 
+	boolean modified = false;
+
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		Log.d(LOG_TAG, "onActivityCreate");
+		CheckListApplication application = (CheckListApplication) getActivity()
+				.getApplication();
+		memCache = application.getMemCache();
+		mSession = application.getSession();
 		targetNotebookId = getArguments().getString("notebookId");
 		this.setHasOptionsMenu(true);
 		getActivity().getActionBar().setTitle(R.string.create_dm);
+		MyNote note = getArguments().getParcelable("note");
+		if (note != null) {
+			modified = true;
+			mTitle.setText(note.title);
+			mDescription.setText(note.description);
+			if (note.resIds != null && note.resIds.size() > 0) {
+				String resId = note.resIds.get(0);
+				Bitmap bitmap = memCache.get(resId);
+				if (bitmap != null) {
+					mImg.setImageBitmap(bitmap);
+				} else {
+					mImg.setTag(note.noteId);
+					new GetNoteResourceTask(getActivity(), mSession, memCache,
+							mImg, note).execute();
+				}
+			}
+		} else {
+			modified = false;
+		}
 		super.onActivityCreated(savedInstanceState);
 	}
 
@@ -190,49 +220,44 @@ public class CreateNoteFragment extends Fragment {
 	}
 
 	public void saveNote() {
-		CheckListApplication application = (CheckListApplication) getActivity()
-				.getApplication();
-		EvernoteSession session = application.getSession();
 
-		if (!session.completeAuthentication(getActivity())
-				|| !session.isLoggedIn()) {
-			session.authenticate(getActivity());
-			// show dialog
-		} else {
-			Intent intent = new Intent(BackgroundService.ACTION_CREATE_NOTE);
-			intent.setClass(getActivity(), BackgroundService.class);
-			intent.putExtra("title", mTitle.getText().toString());
-			intent.putExtra("description", mDescription.getText().toString());
-			intent.putExtra("notebookId", targetNotebookId);
-			String tag = getActivity().getIntent().getStringExtra("tag");
-			if (tag == null) {
-			}
-			intent.putExtra("tag", tag);
-			Log.d(LOG_TAG, "start Evernote Service");
-			LruCache<String, Bitmap> memCache = application.getMemCache();
-			if (bitmapKey != null) {
-				Bitmap bitmap = memCache.get(bitmapKey);
-				ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-				bitmap.compress(Bitmap.CompressFormat.JPEG, 40, bytes);
-				File file = new File(getActivity().getCacheDir(), bitmapKey
-						+ ".jpg");
-
-				try {
-					file.createNewFile();
-					FileOutputStream stream = new FileOutputStream(file);
-					stream.write(bytes.toByteArray());
-					intent.setData(Uri.fromFile(file));
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			getActivity().startService(intent);
-			Toast.makeText(getActivity(),
-					getActivity().getString(R.string.create_dm),
-					Toast.LENGTH_LONG).show();
-			setEmptyImage();
+		Intent intent = new Intent(
+				modified ? BackgroundService.ACTION_EDIT_NOTE
+						: BackgroundService.ACTION_CREATE_NOTE);
+		intent.setClass(getActivity(), BackgroundService.class);
+		intent.putExtra("title", mTitle.getText().toString());
+		intent.putExtra("description", mDescription.getText().toString());
+		intent.putExtra("notebookId", targetNotebookId);
+		String tag = getActivity().getIntent().getStringExtra("tag");
+		if (tag == null) {
 		}
+		intent.putExtra("tag", tag);
+		Log.d(LOG_TAG, "start Evernote Service");
+		if (bitmapKey != null) {
+			Bitmap bitmap = memCache.get(bitmapKey);
+			ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+			bitmap.compress(Bitmap.CompressFormat.JPEG, 40, bytes);
+			File file = new File(getActivity().getCacheDir(), bitmapKey
+					+ ".jpg");
+
+			try {
+				file.createNewFile();
+				FileOutputStream stream = new FileOutputStream(file);
+				stream.write(bytes.toByteArray());
+				intent.setData(Uri.fromFile(file));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		getActivity().startService(intent);
+		Toast.makeText(
+				getActivity(),
+				getActivity().getString(
+						modified ? R.string.update_dm : R.string.create_dm),
+				Toast.LENGTH_LONG).show();
+		setEmptyImage();
+
 	}
 
 	public static CreateNoteFragment newInstance(Uri uri) {
@@ -248,7 +273,7 @@ public class CreateNoteFragment extends Fragment {
 
 		CheckListApplication application = (CheckListApplication) getActivity()
 				.getApplication();
-		LruCache<String, Bitmap> memCache = application.getMemCache();
+
 		String key = uri.getLastPathSegment() + "_o";
 		bitmapKey = key;
 		try {
@@ -306,6 +331,16 @@ public class CreateNoteFragment extends Fragment {
 		CreateNoteFragment fragment = new CreateNoteFragment();
 		Bundle args = new Bundle();
 		args.putString("notebookId", id);
+		fragment.setArguments(args);
+		return fragment;
+	}
+
+	public static CreateNoteFragment newInstance(MyNote note) {
+		CreateNoteFragment fragment = new CreateNoteFragment();
+		Bundle args = new Bundle();
+		args.putString("notebookId", note.notebookId);
+		args.putParcelable("note", note);
+
 		fragment.setArguments(args);
 		return fragment;
 	}

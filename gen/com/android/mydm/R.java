@@ -79,11 +79,11 @@ containing a value of this type.
     }
     public static final class id {
         public static final int DMGalleryContainer=0x7f09001e;
-        public static final int action_cancel_delete=0x7f090029;
-        public static final int action_confirm_delete=0x7f090028;
-        public static final int action_delete=0x7f090027;
-        public static final int action_edit=0x7f09002b;
-        public static final int action_share=0x7f09002a;
+        public static final int action_cancel_delete=0x7f09002b;
+        public static final int action_confirm_delete=0x7f09002a;
+        public static final int action_delete=0x7f090029;
+        public static final int action_edit=0x7f090028;
+        public static final int action_share=0x7f090027;
         public static final int body=0x7f09001c;
         public static final int border=0x7f090012;
         public static final int btn_left=0x7f090021;
@@ -152,31 +152,36 @@ containing a value of this type.
         public static final int photo=0x7f080003;
     }
     public static final class string {
-        public static final int addDescription=0x7f060007;
-        public static final int add_note=0x7f06000f;
-        public static final int add_to_notebook_fail=0x7f060017;
-        public static final int add_to_notebook_success=0x7f060016;
+        public static final int addDescription=0x7f060008;
+        public static final int add_note=0x7f060010;
+        public static final int add_to_notebook_fail=0x7f060018;
+        public static final int add_to_notebook_success=0x7f060017;
         public static final int app_name=0x7f060001;
-        public static final int cancel=0x7f06000a;
+        public static final int cancel=0x7f06000b;
         public static final int change_photo=0x7f060003;
-        public static final int confirm_delete=0x7f060009;
+        public static final int confirm_delete=0x7f06000a;
         public static final int create_dm=0x7f060006;
-        public static final int create_notebook=0x7f060010;
-        public static final int create_success=0x7f060018;
-        public static final int delete=0x7f06000c;
-        public static final int description=0x7f060015;
-        public static final int done=0x7f060011;
+        public static final int create_notebook=0x7f060011;
+        public static final int create_success=0x7f060019;
+        public static final int delete=0x7f06000d;
+        public static final int delete_fail=0x7f06001d;
+        public static final int delete_success=0x7f06001c;
+        public static final int description=0x7f060016;
+        public static final int done=0x7f060012;
         public static final int edit=0x7f060005;
+        public static final int edit_success=0x7f06001a;
         public static final int edit_title=0x7f060002;
-        public static final int generate_share_url=0x7f06000e;
+        public static final int generate_share_url=0x7f06000f;
         public static final int hello=0x7f060000;
-        public static final int loading=0x7f060008;
-        public static final int pick_photo=0x7f060013;
-        public static final int progress=0x7f06000d;
+        public static final int loading=0x7f060009;
+        public static final int pick_photo=0x7f060014;
+        public static final int progress=0x7f06000e;
         public static final int save_photo=0x7f060004;
-        public static final int share=0x7f06000b;
-        public static final int take_photo=0x7f060012;
-        public static final int title=0x7f060014;
+        public static final int share=0x7f06000c;
+        public static final int start_delete_note=0x7f06001b;
+        public static final int take_photo=0x7f060013;
+        public static final int title=0x7f060015;
+        public static final int update_dm=0x7f060007;
     }
     public static final class style {
         public static final int Theme_NoTitleBar_Fullscreen_Custom=0x7f070001;

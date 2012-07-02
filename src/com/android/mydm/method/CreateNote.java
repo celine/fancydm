@@ -17,6 +17,7 @@ import com.evernote.client.oauth.android.EvernoteSession;
 import com.evernote.edam.error.EDAMNotFoundException;
 import com.evernote.edam.error.EDAMSystemException;
 import com.evernote.edam.error.EDAMUserException;
+import com.evernote.edam.type.LazyMap;
 import com.evernote.edam.type.Note;
 import com.evernote.edam.type.NoteAttributes;
 import com.evernote.edam.type.Resource;
@@ -49,8 +50,13 @@ public class CreateNote extends Method {
 		note.setTitle(cp.title);
 		Log.d("Notebook Create", "notebookId " + cp.notebookId);
 		note.setNotebookGuid(cp.notebookId);
+
 		NoteAttributes attrs = new NoteAttributes();
 		attrs.setContentClass(CONTENT_CLASS);
+		LazyMap lmap = new LazyMap();
+		lmap.putToFullMap("checked", "0");
+		lmap.putToFullMap("description", cp.description);
+		attrs.setApplicationData(lmap);
 		note.setAttributes(attrs);
 		InputStream in;
 		String resource_data = "";
