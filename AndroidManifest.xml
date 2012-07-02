@@ -13,6 +13,7 @@
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:name="com.android.mydm.CheckListApplication"
@@ -55,20 +56,25 @@
 
         <activity android:name=".SwitchCheckList" >
             <intent-filter>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <action android:name="android.intent.action.VIEW"/>
-                <data android:scheme="https" android:host="sandbox.evernote.com" android:pathPattern="/shard/.*"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <action android:name="android.intent.action.VIEW" />
+
+                <data
+                    android:host="sandbox.evernote.com"
+                    android:pathPattern="/shard/.*"
+                    android:scheme="https" />
+
+                <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
         </activity>
-  
         <activity android:name="com.android.mydm.MainActivity" >
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER" />
+
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
-  
     </application>
 
 </manifest>

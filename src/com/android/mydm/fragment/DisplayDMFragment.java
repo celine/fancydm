@@ -10,6 +10,7 @@ import org.apache.thrift.transport.TTransportException;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -43,6 +44,7 @@ import com.android.mydm.CheckListApplication;
 import com.android.mydm.R;
 import com.android.mydm.method.FindNote;
 import com.android.mydm.method.FindNote.FindNoteParams;
+import com.android.mydm.remote.BackgroundService;
 import com.android.mydm.util.BitmapUtils;
 import com.android.mydm.view.DMLayout;
 import com.evernote.client.oauth.android.EvernoteSession;
@@ -117,6 +119,9 @@ public class DisplayDMFragment extends Fragment implements
 			ft.commit();
 			Log.d(LOG_TAG, "add fragment");
 			return true;
+		case R.id.refresh_notebook:
+			getLoaderManager().getLoader(0).onContentChanged();
+			return true;
 		}
 		return false;
 	}
@@ -127,6 +132,8 @@ public class DisplayDMFragment extends Fragment implements
 		return new NoteListLoader(getActivity(), mSession, mNotebookId);
 	}
 
+	ArrayList<MyNote> myNotes;
+
 	@Override
 	public void onLoadFinished(Loader<List<Note>> loader, List<Note> data) {
 		mLayout.removeAllViews();
@@ -134,7 +141,7 @@ public class DisplayDMFragment extends Fragment implements
 		CheckListApplication app = (CheckListApplication) getActivity()
 				.getApplication();
 		EvernoteSession session = app.getSession();
-		ArrayList<MyNote> myNotes = new ArrayList<MyNote>();
+		myNotes = new ArrayList<MyNote>();
 		for (int i = 0; i < data.size(); i++) {
 			Note note = data.get(i);
 
@@ -148,15 +155,15 @@ public class DisplayDMFragment extends Fragment implements
 					resIds.add(res.getGuid());
 				}
 			}
-			
-			
+
 			mnote.notebookId = mNotebookId;
 			mnote.noteId = note.getGuid();
 			mnote.resIds = resIds;
 			mnote.title = note.getTitle();
-			
-			mnote.checked = Boolean.valueOf(note.getAttributes().getApplicationData().getFullMap().get("checked"));
-			
+
+			mnote.checked = Boolean.valueOf(note.getAttributes()
+					.getApplicationData().getFullMap().get("checked"));
+
 			myNotes.add(mnote);
 		}
 
@@ -186,7 +193,7 @@ public class DisplayDMFragment extends Fragment implements
 	public static class MyNote implements Parcelable {
 		public String notebookId;
 		public String noteId;
-		boolean checked = false;
+		public boolean checked = false;
 		public String title;
 		public String description;
 		public ArrayList<String> resIds = new ArrayList<String>();
@@ -205,6 +212,7 @@ public class DisplayDMFragment extends Fragment implements
 			content = in.readString();
 			small_thumb = in.readString();
 			noteId = in.readString();
+			description = in.readString();
 		}
 
 		@Override
@@ -221,6 +229,7 @@ public class DisplayDMFragment extends Fragment implements
 			dest.writeString(content);
 			dest.writeString(small_thumb);
 			dest.writeString(noteId);
+			dest.writeString(description);
 		}
 
 		public static final Parcelable.Creator<MyNote> CREATOR = new Parcelable.Creator<MyNote>() {
@@ -336,30 +345,38 @@ public class DisplayDMFragment extends Fragment implements
 					ft.commit();
 				}
 			});
-			
+
 			CheckBox checkbox = (CheckBox) item.findViewById(R.id.checkbox);
 			checkbox.setChecked(note.checked);
 			checkbox.setTag(note);
-			
+
 			checkbox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
 				@Override
 				public void onCheckedChanged(
-						CompoundButton paramCompoundButton, final boolean paramBoolean) {
+						CompoundButton paramCompoundButton,
+						final boolean paramBoolean) {
 					Log.d("AAAA", "checked changed");
-					
-					MyNote mnote = (MyNote)paramCompoundButton.getTag();
-					
-					(new AsyncTask<MyNote, Void, Void> () {
+					note.checked = paramBoolean;
+					MyNote mnote = (MyNote) paramCompoundButton.getTag();
+
+					(new AsyncTask<MyNote, Void, Void>() {
 
 						@Override
 						protected Void doInBackground(MyNote... mnotes) {
 							MyNote mNote = mnotes[0];
-							
-							String token = mNote.token == null ? mSession.getAuthToken():mNote.token;
+
+							String token = mNote.token == null ? mSession
+									.getAuthToken() : mNote.token;
 							try {
-								mSession.createNoteStore().setNoteApplicationDataEntry(token, mNote.noteId, "checked", Boolean.valueOf(paramBoolean).toString());
-								
+								mSession.createNoteStore()
+										.setNoteApplicationDataEntry(
+												token,
+												mNote.noteId,
+												"checked",
+												Boolean.valueOf(paramBoolean)
+														.toString());
+
 							} catch (TTransportException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
@@ -376,13 +393,13 @@ public class DisplayDMFragment extends Fragment implements
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
-							
+
 							return null;
 						}
-						
+
 					}).execute(mnote);
 				}
-				
+
 			});
 
 			mLayout.addChildView(item, width);
@@ -425,12 +442,14 @@ public class DisplayDMFragment extends Fragment implements
 				fParams.notebookId = notebookId;
 				FindNote fNote = new FindNote(mSession);
 				List<Note> notes = fNote.execute(fParams);
-				
-				for(Note note:notes) {
-					LazyMap map = mSession.createNoteStore().getNoteApplicationData(mSession.getAuthToken(), note.getGuid());
+
+				for (Note note : notes) {
+					LazyMap map = mSession.createNoteStore()
+							.getNoteApplicationData(mSession.getAuthToken(),
+									note.getGuid());
 					note.getAttributes().setApplicationData(map);
 				}
-				
+
 				return notes;
 			} catch (TTransportException e) {
 				// TODO Auto-generated catch block

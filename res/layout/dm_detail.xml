@@ -9,31 +9,43 @@
         android:layout_width="@dimen/detail_image_width"
         android:layout_height="@dimen/detail_image_height"
         android:layout_centerHorizontal="true"
-        android:layout_margin="5dp" />
-
-    <Button
-        android:id="@+id/create_share_url"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/img"
-        android:layout_centerHorizontal="true"
-        android:text="@string/generate_share_url" />
+        android:layout_margin="3dp" />
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/create_share_url"
+        android:layout_below="@id/img"
         android:fillViewport="true" >
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical" android:orientation="vertical">
+            android:gravity="center_horizontal"
+            android:orientation="vertical" >
+
+            <Button
+                android:id="@+id/create_share_url"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:text="@string/generate_share_url" />
+
+            <ProgressBar
+                android:id="@+id/progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_marginLeft="14dp"
+                android:layout_toRightOf="@+id/create_share_url"
+                android:visibility="gone" />
 
             <TextView
                 android:id="@+id/detail_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_below="@id/create_share_url"
+                android:layout_centerHorizontal="true"
                 android:padding="3dp"
                 android:shadowColor="#488ac7"
                 android:shadowDx="2.5"
@@ -42,28 +54,26 @@
                 android:textColor="@android:color/black"
                 android:textSize="25dp" >
             </TextView>
+
+            <CheckBox
+                android:id="@+id/checked"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/detail_title"
+                android:layout_centerHorizontal="true"
+                android:text="@string/check_item" />
+
             <TextView
                 android:id="@+id/detail_description"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_below="@id/checked"
+                android:layout_centerHorizontal="true"
                 android:padding="3dp"
-                android:shadowColor="#488ac7"
-                android:shadowDx="2.5"
-                android:shadowDy="0.5"
-                android:shadowRadius="2"
                 android:textColor="@android:color/black"
-                android:textSize="25dp" >
+                android:textSize="20dp" >
             </TextView>
-        </LinearLayout>
+        </RelativeLayout>
     </ScrollView>
-
-    <ProgressBar
-        android:id="@+id/progress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/create_share_url"
-        android:layout_marginLeft="14dp"
-        android:layout_toRightOf="@+id/create_share_url"
-        android:visibility="gone" />
 
 </RelativeLayout>

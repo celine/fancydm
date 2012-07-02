@@ -2,6 +2,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
+        android:id="@+id/refresh_notebook"
+        android:enabled="true"
+        android:icon="@drawable/ic_menu_refresh"
+        android:showAsAction="ifRoom"
+        android:title="@string/refresh"
+        android:visible="true"/>
+    <item
         android:id="@+id/create_note"
         android:enabled="true"
         android:icon="@android:drawable/ic_menu_add"

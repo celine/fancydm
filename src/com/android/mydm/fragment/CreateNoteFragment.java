@@ -57,8 +57,7 @@ public class CreateNoteFragment extends Fragment {
 	private static final String LOG_TAG = "CreateNoteFragment";
 	EditText mTitle;
 	EditText mDescription;
-	String targetNotebookId;
-
+	MyNote mNote;
 	LruCache<String, Bitmap> memCache;
 	EvernoteSession mSession;
 
@@ -130,7 +129,6 @@ public class CreateNoteFragment extends Fragment {
 	}
 
 	boolean modified = false;
-	String noteId;
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
@@ -139,28 +137,27 @@ public class CreateNoteFragment extends Fragment {
 				.getApplication();
 		memCache = application.getMemCache();
 		mSession = application.getSession();
-		targetNotebookId = getArguments().getString("notebookId");
 		this.setHasOptionsMenu(true);
 		getActivity().getActionBar().setTitle(R.string.create_dm);
-		MyNote note = getArguments().getParcelable("note");
-		if (note != null) {
+		mNote = getArguments().getParcelable("note");
+		if (mNote != null) {
 			modified = true;
-			noteId = note.noteId;
-			mTitle.setText(note.title);
-			mDescription.setText(note.description);
-			if (note.resIds != null && note.resIds.size() > 0) {
-				String resId = note.resIds.get(0);
+			mTitle.setText(mNote.title);
+			mDescription.setText(mNote.description);
+			if (mNote.resIds != null && mNote.resIds.size() > 0) {
+				String resId = mNote.resIds.get(0);
 				Bitmap bitmap = memCache.get(resId);
 				if (bitmap != null) {
 					mImg.setImageBitmap(bitmap);
 				} else {
-					mImg.setTag(note.noteId);
+					mImg.setTag(mNote.noteId);
 					new GetNoteResourceTask(getActivity(), mSession, memCache,
-							mImg, note).execute();
+							mImg, mNote).execute();
 				}
 			}
 		} else {
 			modified = false;
+			mNote.notebookId = getArguments().getString("notebookId");
 		}
 		super.onActivityCreated(savedInstanceState);
 	}
@@ -204,10 +201,9 @@ public class CreateNoteFragment extends Fragment {
 				modified ? BackgroundService.ACTION_EDIT_NOTE
 						: BackgroundService.ACTION_CREATE_NOTE);
 		intent.setClass(getActivity(), BackgroundService.class);
-		intent.putExtra("title", mTitle.getText().toString());
-		intent.putExtra("description", mDescription.getText().toString());
-		intent.putExtra("notebookId", targetNotebookId);
-		intent.putExtra("noteId", noteId);
+		mNote.title = mTitle.getText().toString();
+		mNote.description = mDescription.getText().toString();
+		intent.putExtra("note", mNote);
 		String tag = getActivity().getIntent().getStringExtra("tag");
 		if (tag == null) {
 		}
@@ -250,11 +246,10 @@ public class CreateNoteFragment extends Fragment {
 	}
 
 	public void setImage(Uri uri) {
+		if (uri == null) {
+			return;
+		}
 		mUri = uri;
-
-		CheckListApplication application = (CheckListApplication) getActivity()
-				.getApplication();
-
 		String key = uri.getLastPathSegment() + "_o";
 		bitmapKey = key;
 		try {

@@ -37,6 +37,9 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.Gallery;
 import android.widget.ImageView;
 import android.widget.ShareActionProvider;
@@ -140,6 +143,9 @@ public class DMGalleryFragment extends Fragment {
 			ft.add(R.id.panel1, fragment, "edit");
 			ft.addToBackStack(null);
 			ft.commit();
+			return true;
+		case R.id.refresh_note:
+			getLoaderManager().getLoader(0).onContentChanged();
 			return true;
 		}
 		return false;
@@ -307,6 +313,16 @@ public class DMGalleryFragment extends Fragment {
 			}
 			Bitmap bitmap;
 			final MyNote note = getItem(position);
+			CheckBox check = (CheckBox) convertView.findViewById(R.id.checked);
+			check.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+				@Override
+				public void onCheckedChanged(CompoundButton buttonView,
+						boolean isChecked) {
+					note.checked = isChecked;
+				}
+			});
+			check.setChecked(note.checked);
 			if (note.resIds != null && note.resIds.size() > 0) {
 				convertView.setTag(note.resIds.get(0));
 				String resId = note.resIds.get(0);
@@ -482,8 +498,10 @@ public class DMGalleryFragment extends Fragment {
 				Bitmap bitmap = BitmapFactory.decodeByteArray(data.getBody(),
 						0, data.getSize());
 				memCache.put(resId, bitmap);
-				String token = mNote.token == null ? mSession.getAuthToken():mNote.token;
-				Note note = mSession.createNoteStore().getNote(token, mNote.noteId, true, false, false, false);
+				String token = mNote.token == null ? mSession.getAuthToken()
+						: mNote.token;
+				Note note = mSession.createNoteStore().getNote(token,
+						mNote.noteId, true, false, false, false);
 				mNote.content = note.getContent();
 				return bitmap;
 			} catch (TTransportException e) {
@@ -517,16 +535,17 @@ public class DMGalleryFragment extends Fragment {
 						: mView.findViewById(R.id.img));
 				mImage.setImageBitmap(result);
 			}
-			
-			if(mNote.content!=null) {
-				TextView mDesc = (TextView) mView.findViewById(R.id.detail_description);
+
+			if (mNote.content != null) {
+				TextView mDesc = (TextView) mView
+						.findViewById(R.id.detail_description);
 				Pattern contentPattern = Pattern.compile("<p>(.*)<\\/p>");
 				Matcher m = contentPattern.matcher(mNote.content);
-				
-				if(m.find()) {
+
+				if (m.find()) {
 					mDesc.setText(m.group(1));
 				}
-				
+
 			}
 		}
 	}

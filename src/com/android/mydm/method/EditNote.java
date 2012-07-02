@@ -64,7 +64,8 @@ public class EditNote extends Method {
 			note.addToResources(resource);
 		}
 		// note.setTagNames(cp.tagNames);
-		String todo = "<en-todo/>Item completed<br/>";
+		String todo = "<en-todo checked=\"" + (cp.checked ? "true" : "false")
+		+ "\"/>This item is completed<br/>";
 		// Set the note's ENML content. Learn about ENML at
 		// http://dev.evernote.com/documentation/cloud/chapters/ENML.php
 
