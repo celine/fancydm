@@ -34,6 +34,7 @@ public class CreateNote extends Method {
 		public List<String> tagNames;
 		public String notebookId;
 		public boolean checked;
+		public String content;
 	}
 
 	public CreateNote(EvernoteSession session) {

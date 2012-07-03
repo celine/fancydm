@@ -13,6 +13,7 @@ import com.evernote.client.oauth.android.EvernoteSession;
 import com.evernote.edam.error.EDAMNotFoundException;
 import com.evernote.edam.error.EDAMSystemException;
 import com.evernote.edam.error.EDAMUserException;
+import com.evernote.edam.util.EDAMUtil;
 
 public abstract class Method implements Config {
 	EvernoteSession mSession;
@@ -28,4 +29,5 @@ public abstract class Method implements Config {
 	public abstract Object execute(Params params) throws IOException,
 			TTransportException, EDAMUserException, EDAMSystemException,
 			EDAMNotFoundException, TException;
+
 }

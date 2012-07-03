@@ -544,6 +544,7 @@ public class DMGalleryFragment extends Fragment {
 					if(desc == null) {
 						desc = "";
 					}
+					mNote.description = desc;
 					mDesc.setText(desc);
 					
 				}

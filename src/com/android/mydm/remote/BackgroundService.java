@@ -149,6 +149,7 @@ public class BackgroundService extends IntentService {
 		params.description = note.description;
 		params.checked = note.checked;
 		params.notebookId = note.notebookId;
+		params.content = note.content;
 		Log.d(LOG_TAG, "notebookId " + note.notebookId);
 		File file = null;
 		if (data != null) {
