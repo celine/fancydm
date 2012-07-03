@@ -74,7 +74,7 @@ public class ListNotebookFragment extends ListFragment implements
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		Log.d(LOG_TAG,"onCreateView");
+		Log.d(LOG_TAG, "onCreateView");
 		return inflater.inflate(R.layout.listview, container, false);
 	}
 
@@ -251,6 +251,9 @@ public class ListNotebookFragment extends ListFragment implements
 	@Override
 	public void onLoadFinished(Loader<List<Notebook>> loader,
 			List<Notebook> notebooks) {
+		if (notebooks == null) {
+			return;
+		}
 		Log.d(LOG_TAG, "data " + notebooks.size());
 
 		Bundle args = this.getArguments();

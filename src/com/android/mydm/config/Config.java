@@ -3,7 +3,7 @@ package com.android.mydm.config;
 public interface Config {
 	String CONSUMER_KEY = "wenchih-5780";
 	String CONSUMER_SECRET = "3f209fd6be47308f";
-	String EVERNOTE_HOST = "sandbox.evernote.com";
+	String EVERNOTE_HOST = "www.evernote.com";
 
 	String APP_NAME = "Evernote Android Sample";
 	String APP_VERSION = "1.0";

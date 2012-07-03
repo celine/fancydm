@@ -4,11 +4,9 @@
     android:layout_height="match_parent"
     android:orientation="horizontal" >
 
-    <fragment
+    <FrameLayout
         android:id="@+id/panel1"
-        android:name="com.android.mydm.fragment.ListNotebookFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:tag="notebooks" />
+        android:layout_height="match_parent" />
 
 </LinearLayout>

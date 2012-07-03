@@ -42,7 +42,7 @@ public class SwitchCheckList extends FragmentActivity implements
 	private static final String LOG_TAG = "EvernoteViewCheckList";
 	private String mUrl = null;
 	static Pattern urlPattern = Pattern
-			.compile("^https://sandbox.evernote.com/shard/(\\w+)/sh/(\\S+)/(.*)");
+			.compile("^https://www.evernote.com/shard/(\\w+)/sh/(\\S+)/(.*)");
 
 	MyNote mNote = null;
 
