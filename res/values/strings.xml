@@ -2,7 +2,7 @@
 <resources>
 
     <string name="hello">Hello World, CaptureActivity!</string>
-    <string name="app_name">Capture</string>
+    <string name="app_name">WishlistNote</string>
     <string name="edit_title">Edit title...</string>
     <string name="change_photo">Change photo</string>
     <string name="save_photo">Save</string>
