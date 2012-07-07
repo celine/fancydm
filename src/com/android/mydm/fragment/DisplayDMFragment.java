@@ -84,9 +84,6 @@ public class DisplayDMFragment extends Fragment implements
 			mNotebookId = args.getString("ngid");
 		}
 		Activity activity = getActivity();
-		activity.getActionBar().setTitle(args.getString("title"));
-		activity.getActionBar().setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP,
-				ActionBar.DISPLAY_HOME_AS_UP);
 
 		setHasOptionsMenu(true);
 		CheckListApplication app = (CheckListApplication) activity
@@ -99,6 +96,10 @@ public class DisplayDMFragment extends Fragment implements
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		Activity activity = getActivity();
+		activity.getActionBar().setTitle(getArguments().getString("title"));
+		activity.getActionBar().setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP,
+				ActionBar.DISPLAY_HOME_AS_UP);
 		menu.clear();
 		inflater.inflate(R.menu.notes, menu);
 	}
@@ -138,6 +139,7 @@ public class DisplayDMFragment extends Fragment implements
 	@Override
 	public void onLoadFinished(Loader<List<Note>> loader, List<Note> data) {
 		mLayout.removeAllViews();
+		Log.d("AAAA", "get data " + data.size());
 		mEmptyView.setVisibility(View.GONE);
 		CheckListApplication app = (CheckListApplication) getActivity()
 				.getApplication();
@@ -183,8 +185,9 @@ public class DisplayDMFragment extends Fragment implements
 			int height = Math.round((float) dm_width / width * dm_height);
 			for (int i = 0; i < data.size(); i++) {
 
-				new GetResourceTask(getActivity(), session, cacheManager, mLayout,
-						myNotes, width, height, title_height).execute(i);
+				new GetResourceTask(getActivity(), session, cacheManager,
+						mLayout, myNotes, width, height, title_height)
+						.execute(i);
 			}
 
 			Log.d(LOG_TAG, "data size " + data.size());
@@ -259,9 +262,9 @@ public class DisplayDMFragment extends Fragment implements
 		int title_height;
 
 		public GetResourceTask(FragmentActivity fragmentActivity,
-				EvernoteSession session, CacheManager cache,
-				DMLayout layout, ArrayList<MyNote> myNotes, int width,
-				int height, int title_height) {
+				EvernoteSession session, CacheManager cache, DMLayout layout,
+				ArrayList<MyNote> myNotes, int width, int height,
+				int title_height) {
 			mActivity = fragmentActivity;
 			mLayout = layout;
 			mSession = session;
@@ -435,7 +438,7 @@ public class DisplayDMFragment extends Fragment implements
 				deliverResult(mNotes);
 			}
 			if (takeContentChanged() || mNotes == null) {
-				Log.d(LOG_TAG,"change");
+				Log.d(LOG_TAG, "change");
 				forceLoad();
 			}
 		}
@@ -515,7 +518,7 @@ public class DisplayDMFragment extends Fragment implements
 	@Override
 	public void onPause() {
 		// release memCache to save mem
-		//cacheManager.evictAll();
+		// cacheManager.evictAll();
 		super.onPause();
 	}
 }

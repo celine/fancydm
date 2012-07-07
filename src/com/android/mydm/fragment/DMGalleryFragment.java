@@ -80,7 +80,7 @@ public class DMGalleryFragment extends Fragment {
 
 			@Override
 			public void onItemSelected(AdapterView<?> arg0, View arg1,
-					int arg2, long arg3) {
+					int position, long arg3) {
 				getActivity().invalidateOptionsMenu();
 
 			}
@@ -100,7 +100,6 @@ public class DMGalleryFragment extends Fragment {
 		inflater.inflate(R.menu.photo, menu);
 		MenuItem item = menu.findItem(R.id.action_share);
 		mShareActionProvider = (ShareActionProvider) item.getActionProvider();
-		Log.d(LOG_TAG, "onCreateOptionsMenu");
 
 	}
 
@@ -124,6 +123,10 @@ public class DMGalleryFragment extends Fragment {
 			} else {
 				item.setVisible(false);
 			}
+		}
+		MyNote note = (MyNote) mGallery.getSelectedItem();
+		if (note != null) {
+			getActivity().getActionBar().setTitle(note.title);
 		}
 	}
 

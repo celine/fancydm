@@ -18,6 +18,7 @@ import com.evernote.edam.error.EDAMSystemException;
 import com.evernote.edam.error.EDAMUserException;
 import com.evernote.edam.type.Notebook;
 
+import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -37,6 +38,8 @@ import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -61,10 +64,11 @@ public class ListNotebookFragment extends ListFragment implements
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
-		getActivity().getActionBar().setTitle(R.string.app_name);
+
 		super.onActivityCreated(savedInstanceState);
 		CheckListApplication app = (CheckListApplication) getActivity()
 				.getApplication();
+		this.setHasOptionsMenu(true);
 		mSession = app.getSession();
 		mAdapter = new NoteBookAdapter(getActivity());
 		setListAdapter(mAdapter);
@@ -241,6 +245,15 @@ public class ListNotebookFragment extends ListFragment implements
 			return convertView;
 		}
 
+	}
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		menu.clear();
+		getActivity().getActionBar().setTitle(R.string.app_name);
+		getActivity().getActionBar().setDisplayOptions(
+				ActionBar.DISPLAY_SHOW_HOME, ActionBar.DISPLAY_SHOW_HOME);
+		super.onCreateOptionsMenu(menu, inflater);
 	}
 
 	@Override

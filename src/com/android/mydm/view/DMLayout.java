@@ -43,6 +43,12 @@ public class DMLayout extends LinearLayout {
 		return layout;
 	}
 
+	@Override
+	public void removeAllViews() {
+		mCurrentRow = null;
+		super.removeAllViews();
+	}
+
 	public void addChildView(View addChild, int childWidth) {
 		int width = getWidth();
 		int rowWidth = 0;
