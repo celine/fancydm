@@ -7,6 +7,7 @@ import java.util.Random;
 import org.apache.thrift.TException;
 import org.apache.thrift.transport.TTransportException;
 
+import com.android.mydm.CacheManager;
 import com.android.mydm.CheckListApplication;
 import com.android.mydm.R;
 import com.android.mydm.R.dimen;
@@ -61,7 +62,7 @@ public class RackFragment extends Fragment implements
 	RackView mRackView;
 	EvernoteSession mSession;
 	NoteBookAdapter mAdapter;
-	LruCache<String, Bitmap> memCache;
+	CacheManager cacheManager;
 	private static final String LOG_TAG = "RackFragment";
 	private int mMode;
 	private static final int MODE_VIEW = 0;
@@ -89,8 +90,8 @@ public class RackFragment extends Fragment implements
 				.getApplication();
 		setHasOptionsMenu(true);
 		mSession = app.getSession();
-		memCache = app.getMemCache();
-		mAdapter = new NoteBookAdapter(getActivity(), memCache);
+		cacheManager = app.getCacheManager();
+		mAdapter = new NoteBookAdapter(getActivity(), cacheManager);
 		mRackView.setAdapter(mAdapter);
 		mRackView.setOnItemClickListener(new OnItemClickListener() {
 
@@ -213,12 +214,12 @@ public class RackFragment extends Fragment implements
 	public static class NoteBookAdapter extends BaseAdapter {
 		LayoutInflater mInflater;
 		public List<Notebook> mNotebooks;
-		LruCache<String, Bitmap> memCache;
+		CacheManager memCache;
 		int coverWidth;
 		int coverHeight;
 		Resources mRes;
 
-		public NoteBookAdapter(Context context, LruCache<String, Bitmap> cache) {
+		public NoteBookAdapter(Context context, CacheManager cache) {
 			mInflater = LayoutInflater.from(context);
 			memCache = cache;
 			coverWidth = context.getResources().getDimensionPixelSize(
@@ -308,7 +309,7 @@ public class RackFragment extends Fragment implements
 		public static Random mRandom = new Random();
 
 		public CoverBitmapWorkerTask(Resources res,
-				LruCache<String, Bitmap> cache, ImageView img, int width,
+				CacheManager cache, ImageView img, int width,
 				int height, String title) {
 			super(cache, img);
 			mWidth = width;

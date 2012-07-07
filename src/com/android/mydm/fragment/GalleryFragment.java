@@ -42,7 +42,7 @@ public abstract class GalleryFragment extends Fragment {
 		mGallery = (AdapterView) view.findViewById(R.id.gallery);
 		CheckListApplication application = (CheckListApplication) getActivity()
 				.getApplication();
-		mAdapter = new ImageAdapter(getActivity(), application.getMemCache());
+		mAdapter = new ImageAdapter(getActivity(), application.getCacheManager());
 		mGallery.setAdapter(mAdapter);
 		mGallery.setOnItemClickListener(new OnItemClickListener() {
 

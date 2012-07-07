@@ -16,21 +16,22 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
+import com.android.mydm.CacheManager;
 import com.android.mydm.R;
 import com.android.mydm.util.BitmapUtils;
 import com.android.mydm.util.BitmapWorkerTask;
 
 public class ImageAdapter extends BaseAdapter {
-	LruCache<String, Bitmap> mMemCache;
+	CacheManager cacheManager;
 	ArrayList<Uri> mUris = new ArrayList<Uri>();
 	LayoutInflater mInflater;
 	ContentResolver mResolver;
 	private static int PIC_SIZE = 150;
 
-	public ImageAdapter(Context context, LruCache<String, Bitmap> memCache) {
+	public ImageAdapter(Context context, CacheManager cache) {
 		PIC_SIZE = context.getResources().getDimensionPixelSize(
 				R.dimen.preview_size);
-		mMemCache = memCache;
+		cacheManager = cache;
 		mInflater = LayoutInflater.from(context);
 		mResolver = context.getContentResolver();
 	}
@@ -63,13 +64,13 @@ public class ImageAdapter extends BaseAdapter {
 		} else {
 			Uri uri = getItem(position);
 			String key = generateKeyFromUri(uri);
-			Bitmap bitmap = mMemCache.get(key);
+			Bitmap bitmap = cacheManager.get(key);
 			img.setTag(key);
 			if (bitmap != null) {
 				img.setImageBitmap(bitmap);
 			} else {
 				img.setImageResource(R.drawable.preview);
-				new ImageBitmapWorkerTask(mResolver, mMemCache, img).execute(
+				new ImageBitmapWorkerTask(mResolver, cacheManager, img).execute(
 						uri.toString(), generateKeyFromUri(uri));
 			}
 		}
@@ -80,7 +81,7 @@ public class ImageAdapter extends BaseAdapter {
 		ContentResolver mResolver;
 
 		public ImageBitmapWorkerTask(ContentResolver resolver,
-				LruCache<String, Bitmap> cache, ImageView img) {
+				CacheManager cache, ImageView img) {
 			super(cache, img);
 			mResolver = resolver;
 		}

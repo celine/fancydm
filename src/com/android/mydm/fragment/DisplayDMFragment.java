@@ -40,6 +40,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.android.mydm.CacheManager;
 import com.android.mydm.CheckListApplication;
 import com.android.mydm.R;
 import com.android.mydm.method.FindNote;
@@ -60,7 +61,7 @@ public class DisplayDMFragment extends Fragment implements
 		LoaderManager.LoaderCallbacks<List<Note>> {
 	String mNotebookId;
 	EvernoteSession mSession;
-	LruCache<String, Bitmap> memCache;
+	CacheManager cacheManager;
 	DMLayout mLayout;
 	private static final String LOG_TAG = "DisplayDMFragment";
 	View mEmptyView;
@@ -91,7 +92,7 @@ public class DisplayDMFragment extends Fragment implements
 		CheckListApplication app = (CheckListApplication) activity
 				.getApplication();
 		mSession = app.getSession();
-		memCache = app.getMemCache();
+		cacheManager = app.getCacheManager();
 		getLoaderManager().initLoader(0, null, this);
 		super.onActivityCreated(savedInstanceState);
 	}
@@ -182,7 +183,7 @@ public class DisplayDMFragment extends Fragment implements
 			int height = Math.round((float) dm_width / width * dm_height);
 			for (int i = 0; i < data.size(); i++) {
 
-				new GetResourceTask(getActivity(), session, memCache, mLayout,
+				new GetResourceTask(getActivity(), session, cacheManager, mLayout,
 						myNotes, width, height, title_height).execute(i);
 			}
 
@@ -250,7 +251,7 @@ public class DisplayDMFragment extends Fragment implements
 		FragmentActivity mActivity;
 		DMLayout mLayout;
 		EvernoteSession mSession;
-		LruCache<String, Bitmap> memCache;
+		CacheManager cacheManager;
 		ArrayList<MyNote> mNotes;
 		Bitmap mBitmap;
 		int width;
@@ -258,13 +259,13 @@ public class DisplayDMFragment extends Fragment implements
 		int title_height;
 
 		public GetResourceTask(FragmentActivity fragmentActivity,
-				EvernoteSession session, LruCache<String, Bitmap> cache,
+				EvernoteSession session, CacheManager cache,
 				DMLayout layout, ArrayList<MyNote> myNotes, int width,
 				int height, int title_height) {
 			mActivity = fragmentActivity;
 			mLayout = layout;
 			mSession = session;
-			memCache = cache;
+			cacheManager = cache;
 			mNotes = myNotes;
 			this.width = width;
 			this.height = height;
@@ -288,6 +289,7 @@ public class DisplayDMFragment extends Fragment implements
 					Data data = res.getData();
 					bitmap = BitmapFactory.decodeByteArray(data.getBody(), 0,
 							data.getSize());
+					cacheManager.put(resId, bitmap);
 				} else {
 					bitmap = BitmapFactory.decodeResource(
 							mActivity.getResources(),
@@ -296,7 +298,7 @@ public class DisplayDMFragment extends Fragment implements
 				mBitmap = BitmapUtils.resizeAndCrop(bitmap, width, height);
 				String size = width + "x" + height;
 				note.small_thumb = resId + "_" + size;
-				memCache.put(note.small_thumb, mBitmap);
+				cacheManager.put(note.small_thumb, mBitmap);
 			} catch (TTransportException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -513,7 +515,7 @@ public class DisplayDMFragment extends Fragment implements
 	@Override
 	public void onPause() {
 		// release memCache to save mem
-		memCache.evictAll();
+		//cacheManager.evictAll();
 		super.onPause();
 	}
 }

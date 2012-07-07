@@ -46,6 +46,7 @@ import android.widget.ShareActionProvider;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.mydm.CacheManager;
 import com.android.mydm.CheckListApplication;
 import com.android.mydm.R;
 import com.android.mydm.fragment.DisplayDMFragment.MyNote;
@@ -234,13 +235,13 @@ public class DMGalleryFragment extends Fragment {
 				.getApplication();
 		this.setHasOptionsMenu(true);
 		mSession = app.getSession();
-		memCache = app.getMemCache();
+		cacheManager = app.getCacheManager();
 		List<MyNote> notes = getArguments().getParcelableArrayList("notes");
 		mUrlArray = new SparseArray<String>(notes.size());
 
 		mShareNote = getArguments().getBoolean("share_note", false);
 
-		mAdapter = new DMPageAdapter(getActivity(), mSession, memCache,
+		mAdapter = new DMPageAdapter(getActivity(), mSession, cacheManager,
 				mUrlArray, mShareNote);
 		mGallery.setAdapter(mAdapter);
 		mAdapter.updateData(notes);
@@ -252,24 +253,24 @@ public class DMGalleryFragment extends Fragment {
 
 	String mNotebookId;
 	EvernoteSession mSession;
-	LruCache<String, Bitmap> memCache;
+	CacheManager cacheManager;
 
 	public static class DMPageAdapter extends BaseAdapter {
 		private List<MyNote> mNotes;
 		LayoutInflater mInflater;
 		Activity mActivity;
 		EvernoteSession mSession;
-		LruCache<String, Bitmap> memCache;
+		CacheManager cacheManager;
 		SparseArray<String> mUrlArray;
 		boolean mShareNote = false;
 
 		public DMPageAdapter(Activity context, EvernoteSession session,
-				LruCache<String, Bitmap> cache, SparseArray<String> urlArray,
+				CacheManager cache, SparseArray<String> urlArray,
 				boolean shareNote) {
 			mActivity = context;
 			mInflater = LayoutInflater.from(context);
 			mSession = session;
-			memCache = cache;
+			cacheManager = cache;
 			mUrlArray = urlArray;
 			mShareNote = shareNote;
 		}
@@ -320,10 +321,12 @@ public class DMGalleryFragment extends Fragment {
 				}
 			});
 			check.setChecked(note.checked);
+			convertView.setTag(note.noteId);
+			String resId = null;
 			if (note.resIds != null && note.resIds.size() > 0) {
-				convertView.setTag(note.resIds.get(0));
-				String resId = note.resIds.get(0);
-				bitmap = memCache.get(resId);
+
+				resId = note.resIds.get(0);
+				bitmap = cacheManager.get(resId);
 			} else {
 				bitmap = BitmapFactory.decodeResource(mActivity.getResources(),
 						R.drawable.ic_missing_thumbnail_picture);
@@ -346,16 +349,26 @@ public class DMGalleryFragment extends Fragment {
 							mButton, progress).execute(mUrlArray);
 				}
 			});
-			if (bitmap == null) {
-				new GetNoteResourceTask(mActivity, mSession, memCache,
-						convertView, note).execute();
-			} else {
-				ImageView mImage = (ImageView) convertView
-						.findViewById(R.id.img);
-
+			ImageView mImage = (ImageView) convertView.findViewById(R.id.img);
+			if (bitmap != null) {
 				mImage.setImageBitmap(bitmap);
+			} else {
+				Bitmap small = cacheManager.get(note.small_thumb);
+				if (small != null) {
+					mImage.setImageBitmap(small);
+				}
 			}
 			mTitle.setText(note.title);
+			if (note.content == null || bitmap == null) {
+				new getContentTask(mActivity, mSession, cacheManager,
+						convertView, note).execute(bitmap == null ? resId
+						: null);
+			} else {
+				TextView mDesc = (TextView) convertView
+						.findViewById(R.id.detail_description);
+				mDesc.setText(note.description);
+			}
+
 			return convertView;
 		}
 	}
@@ -452,28 +465,16 @@ public class DMGalleryFragment extends Fragment {
 
 	}
 
-	public static class GetNoteResourceTask extends
-			AsyncTask<Void, Void, Bitmap> {
+	public static class getContentTask extends AsyncTask<String, Void, Bitmap> {
 		MyNote mNote;
 		EvernoteSession mSession;
-		LruCache<String, Bitmap> memCache;
+		CacheManager cacheManager;
 		View mView;
 
-		@Override
-		protected void onPreExecute() {
-			if (mNote.small_thumb != null) {
-				Bitmap bitmap = memCache.get(mNote.small_thumb);
-				if (bitmap != null) {
-					ImageView mImage = (ImageView) mView.findViewById(R.id.img);
-					mImage.setImageBitmap(bitmap);
-				}
-			}
-		}
-
-		public GetNoteResourceTask(Context context, EvernoteSession session,
-				LruCache<String, Bitmap> cache, View view, MyNote note) {
+		public getContentTask(Context context, EvernoteSession session,
+				CacheManager cache, View view, MyNote note) {
 			mSession = session;
-			memCache = cache;
+			cacheManager = cache;
 			mView = view;
 			mNote = note;
 		}
@@ -487,20 +488,38 @@ public class DMGalleryFragment extends Fragment {
 		}
 
 		@Override
-		public Bitmap doInBackground(Void... params) {
+		public Bitmap doInBackground(String... params) {
 			try {
-				String resId = mNote.resIds.get(0);
-				Resource res = getResource(mSession, resId);
-				Data data = res.getData();
-				Bitmap bitmap = BitmapFactory.decodeByteArray(data.getBody(),
-						0, data.getSize());
-				memCache.put(resId, bitmap);
-				String token = mNote.token == null ? mSession.getAuthToken()
-						: mNote.token;
-				Note note = mSession.createNoteStore().getNote(token,
-						mNote.noteId, true, false, false, false);
-				mNote.content = note.getContent();
-				return bitmap;
+				if (mNote.content == null) {
+					String token = mNote.token == null ? mSession
+							.getAuthToken() : mNote.token;
+					Note note = mSession.createNoteStore().getNote(token,
+							mNote.noteId, true, false, false, false);
+					Log.d(LOG_TAG, "getNote " + note.getContent());
+					mNote.content = note.getContent();
+					if (mNote.content != null) {
+
+						Pattern contentPattern = Pattern
+								.compile("<p>(.*)<\\/p>");
+						Matcher m = contentPattern.matcher(mNote.content);
+
+						if (m.find()) {
+							String desc = m.group(1);
+							if (desc == null) {
+								desc = "";
+							}
+							mNote.description = desc;
+						}
+					}
+				}
+				String resId = params[0];
+				if (resId != null) {
+					Resource res = getResource(mSession, resId);
+					Data data = res.getData();
+					Bitmap bitmap = BitmapFactory.decodeByteArray(
+							data.getBody(), 0, data.getSize());
+					return bitmap;
+				}
 			} catch (TTransportException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -521,34 +540,24 @@ public class DMGalleryFragment extends Fragment {
 		}
 
 		@Override
-		protected void onPostExecute(Bitmap result) {
-			if (result == null) {
-				return;
-			}
-
-			String resId = mNote.resIds.get(0);
-			if (resId.equals(mView.getTag())) {
-				ImageView mImage = (ImageView) ((mView instanceof ImageView) ? mView
-						: mView.findViewById(R.id.img));
-				mImage.setImageBitmap(result);
-			}
-
-			if (mNote.content != null) {
-				TextView mDesc = (TextView) mView
-						.findViewById(R.id.detail_description);
-				Pattern contentPattern = Pattern.compile("<p>(.*)<\\/p>");
-				Matcher m = contentPattern.matcher(mNote.content);
-
-				if (m.find() && mDesc!=null) {
-					String desc = m.group(1);
-					if(desc == null) {
-						desc = "";
-					}
-					mNote.description = desc;
-					mDesc.setText(desc);
-					
+		protected void onPostExecute(Bitmap bitmap) {
+			if (mNote.noteId.equals(mView.getTag())) {
+				if (bitmap != null) {
+					ImageView mImage = (ImageView) mView.findViewById(R.id.img);
+					mImage.setImageBitmap(bitmap);
 				}
+				if (mNote.content != null) {
+					TextView mDesc = (TextView) mView
+							.findViewById(R.id.detail_description);
+					Pattern contentPattern = Pattern.compile("<p>(.*)<\\/p>");
+					Matcher m = contentPattern.matcher(mNote.content);
+					String desc = mNote.description;
+					if (desc != null && mDesc != null) {
+						mDesc.setText(desc);
 
+					}
+
+				}
 			}
 		}
 	}

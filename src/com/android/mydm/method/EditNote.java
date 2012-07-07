@@ -45,6 +45,11 @@ public class EditNote extends Method {
 
 		// Create a new Note
 		Note note = new Note();
+		if (cp.content == null) {
+			note = mSession.createNoteStore().getNote(mSession.getAuthToken(),
+					cp.noteId, true, false, false, false);
+		}
+		String content = cp.content;
 		note.setGuid(cp.noteId);
 		note.setTitle(cp.title);
 
@@ -56,11 +61,14 @@ public class EditNote extends Method {
 		attrs.setApplicationData(lmap);
 		note.setAttributes(attrs);
 		InputStream in;
-		String content = cp.content;
+
 		String resource_data = "";
-		Map<String, String> map = parseContent(content);
-		String hash = map.get("hash");
-		cp.mimeType = map.get("mimeType");
+		String hash = null;
+		if (content != null) {
+			Map<String, String> map = parseContent(content);
+			hash = map.get("hash");
+			cp.mimeType = map.get("mimeType");
+		}
 		if (cp.f != null) {
 			in = new BufferedInputStream(new FileInputStream(cp.f));
 			FileData data = new FileData(EDAMUtil.hash(in), new File(cp.f));
@@ -68,7 +76,7 @@ public class EditNote extends Method {
 			resource.setData(data);
 			resource.setMime(cp.mimeType);
 			hash = EDAMUtil.bytesToHex(resource.getData().getBodyHash());
-			
+
 			note.addToResources(resource);
 		}
 		if (hash != null) {
@@ -109,7 +117,9 @@ public class EditNote extends Method {
 						for (int i = 0; i < count; i++) {
 							String name = xpp.getAttributeName(i);
 							if ("type".equals(name)) {
-								Log.d("Evernote","find mimeType " + xpp.getAttributeValue(i));
+								Log.d("Evernote",
+										"find mimeType "
+												+ xpp.getAttributeValue(i));
 								map.put("mimeType", xpp.getAttributeValue(i));
 							} else if ("hash".equals(name)) {
 								map.put("hash", xpp.getAttributeValue(i));

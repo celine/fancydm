@@ -6,13 +6,14 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import com.android.mydm.CacheManager;
 import com.android.mydm.CheckListApplication;
 import com.android.mydm.R;
 import com.android.mydm.R.drawable;
 import com.android.mydm.R.id;
 import com.android.mydm.R.layout;
 import com.android.mydm.R.string;
-import com.android.mydm.fragment.DMGalleryFragment.GetNoteResourceTask;
+import com.android.mydm.fragment.DMGalleryFragment.getContentTask;
 import com.android.mydm.fragment.DisplayDMFragment.MyNote;
 import com.android.mydm.remote.BackgroundService;
 import com.android.mydm.util.BitmapUtils;
@@ -58,7 +59,7 @@ public class CreateNoteFragment extends Fragment {
 	EditText mTitle;
 	EditText mDescription;
 	MyNote mNote;
-	LruCache<String, Bitmap> memCache;
+	CacheManager cacheManager;
 	EvernoteSession mSession;
 
 	public CreateNoteFragment() {
@@ -135,7 +136,7 @@ public class CreateNoteFragment extends Fragment {
 		Log.d(LOG_TAG, "onActivityCreate");
 		CheckListApplication application = (CheckListApplication) getActivity()
 				.getApplication();
-		memCache = application.getMemCache();
+		cacheManager = application.getCacheManager();
 		mSession = application.getSession();
 		this.setHasOptionsMenu(true);
 		getActivity().getActionBar().setTitle(R.string.create_dm);
@@ -146,12 +147,12 @@ public class CreateNoteFragment extends Fragment {
 			mDescription.setText(mNote.description);
 			if (mNote.resIds != null && mNote.resIds.size() > 0) {
 				String resId = mNote.resIds.get(0);
-				Bitmap bitmap = memCache.get(resId);
+				Bitmap bitmap = cacheManager.get(resId);
 				if (bitmap != null) {
 					mImg.setImageBitmap(bitmap);
 				} else {
 					mImg.setTag(mNote.noteId);
-					new GetNoteResourceTask(getActivity(), mSession, memCache,
+					new getContentTask(getActivity(), mSession, cacheManager,
 							mImg, mNote).execute();
 				}
 			}
@@ -209,7 +210,7 @@ public class CreateNoteFragment extends Fragment {
 		}
 		intent.putExtra("tag", tag);
 		if (bitmapKey != null) {
-			Bitmap bitmap = memCache.get(bitmapKey);
+			Bitmap bitmap = cacheManager.get(bitmapKey);
 			ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 			bitmap.compress(Bitmap.CompressFormat.JPEG, 40, bytes);
 			File file = new File(getActivity().getCacheDir(), bitmapKey
@@ -252,13 +253,13 @@ public class CreateNoteFragment extends Fragment {
 		String key = uri.getLastPathSegment() + "_o";
 		bitmapKey = key;
 		try {
-			Bitmap bitmap = memCache.get(key);
+			Bitmap bitmap = cacheManager.get(key);
 			if (bitmap == null) {
 				bitmap = BitmapUtils
 						.decodeSampledBitmapFromUriWithMaxEdgeAndRatio(
 								getActivity().getContentResolver(), uri, 480,
 								0.75f);
-				memCache.put(key, bitmap);
+				cacheManager.put(key, bitmap);
 			}
 			mImg.setImageBitmap(bitmap);
 		} catch (FileNotFoundException e) {

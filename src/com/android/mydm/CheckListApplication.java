@@ -13,23 +13,13 @@ import android.graphics.Bitmap;
 import android.support.v4.util.LruCache;
 
 public class CheckListApplication extends Application implements Config {
-	LruCache<String, Bitmap> mMemCache;
+	CacheManager mCacheManager;
 	EvernoteSession mSession;
 
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-		int memClass = am.getMemoryClass();
-		final int cacheSize = 1024 * 1024 * memClass / 8;
-		mMemCache = new LruCache<String, Bitmap>(cacheSize) {
-			@Override
-			protected int sizeOf(String key, Bitmap bitmap) {
-				// The cache size will be measured in bytes rather than number
-				// of items.
-				return BitmapUtils.getBitmapByteCount(bitmap);
-			}
-		};
+		mCacheManager = new CacheManager(this);
 		mSession = EvernoteUtil.getSession(getBaseContext());
 	}
 
@@ -37,8 +27,8 @@ public class CheckListApplication extends Application implements Config {
 		return mSession;
 	}
 
-	public LruCache<String, Bitmap> getMemCache() {
-		return mMemCache;
+	public CacheManager getCacheManager() {
+		return mCacheManager;
 	}
 
 }

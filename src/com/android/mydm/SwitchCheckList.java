@@ -69,14 +69,14 @@ public class SwitchCheckList extends FragmentActivity implements
 
 	String mNotebookId;
 	EvernoteSession mSession;
-	LruCache memCache;
+	CacheManager cacheManager;
 
 	@Override
 	protected void onResume() {
 		super.onResume();
 		CheckListApplication app = (CheckListApplication) getApplication();
 		mSession = app.getSession();
-		memCache = app.getMemCache();
+		cacheManager = app.getCacheManager();
 
 		if (!mSession.completeAuthentication(this) || !mSession.isLoggedIn()) {
 			mSession.authenticate(this);
@@ -85,7 +85,7 @@ public class SwitchCheckList extends FragmentActivity implements
 			// List<MyNote> notes = this.getIntent().getExtras()
 			// .getParcelableArrayList("notes");
 			mUrl = this.getIntent().getData().toString();
-			GetShareNoteTask task = new GetShareNoteTask(mSession, memCache,
+			GetShareNoteTask task = new GetShareNoteTask(mSession, cacheManager,
 					this.getResources(), new NoteListener() {
 
 						@Override
@@ -153,17 +153,17 @@ public class SwitchCheckList extends FragmentActivity implements
 		EvernoteSession mSession = null;
 		Client noteStore = null;
 		NoteListener mListener;
-		LruCache memCache;
+		CacheManager cacheManager;
 
 		int margin;
 		int dm_width;
 		int dm_height;
 
-		GetShareNoteTask(EvernoteSession session, LruCache memCache,
+		GetShareNoteTask(EvernoteSession session, CacheManager cacheManager,
 				Resources res, NoteListener listener) {
 			this.mSession = session;
 			this.mListener = listener;
-			this.memCache = memCache;
+			this.cacheManager = cacheManager;
 
 			margin = res.getDimensionPixelSize(R.dimen.dm_margin);
 			dm_width = res.getDimensionPixelSize(R.dimen.dm_width);
@@ -216,7 +216,7 @@ public class SwitchCheckList extends FragmentActivity implements
 						String size = dm_width - 2 * margin + "x" + dm_height;
 						myNote.small_thumb = resId + "_" + size;
 
-						memCache.put(myNote.small_thumb, mBitmap);
+						cacheManager.put(myNote.small_thumb, mBitmap);
 					}
 
 					return myNote;

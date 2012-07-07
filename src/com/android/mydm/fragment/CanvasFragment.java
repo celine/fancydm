@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import com.android.mydm.CacheManager;
 import com.android.mydm.CheckListApplication;
 import com.android.mydm.R;
 import com.android.mydm.R.drawable;
@@ -104,9 +105,9 @@ public class CanvasFragment extends Fragment {
 					}
 					intent.putExtra("tag", tag);
 					Log.d(LOG_TAG, "start Evernote Service");
-					LruCache<String, Bitmap> memCache = application
-							.getMemCache();
-					Bitmap bitmap = memCache.get(bitmapKey);
+					CacheManager cacheManager = application
+							.getCacheManager();
+					Bitmap bitmap = cacheManager.get(bitmapKey);
 					ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 					bitmap.compress(Bitmap.CompressFormat.JPEG, 40, bytes);
 					File file = new File(getActivity().getCacheDir(), bitmapKey
@@ -157,17 +158,17 @@ public class CanvasFragment extends Fragment {
 		saveButton.setVisibility(View.VISIBLE);
 		CheckListApplication application = (CheckListApplication) getActivity()
 				.getApplication();
-		LruCache<String, Bitmap> memCache = application.getMemCache();
+		CacheManager cacheManager = application.getCacheManager();
 		String key = uri.getLastPathSegment() + "_o";
 		bitmapKey = key;
 		try {
-			Bitmap bitmap = memCache.get(key);
+			Bitmap bitmap = cacheManager.get(key);
 			if (bitmap == null) {
 				bitmap = BitmapUtils
 						.decodeSampledBitmapFromUriWithMaxEdgeAndRatio(
 								getActivity().getContentResolver(), uri, 480,
 								0.75f);
-				memCache.put(key, bitmap);
+				cacheManager.put(key, bitmap);
 			}
 			mImg.setImageBitmap(bitmap);
 		} catch (FileNotFoundException e) {
