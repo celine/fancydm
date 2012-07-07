@@ -312,12 +312,55 @@ public class DMGalleryFragment extends Fragment {
 			Bitmap bitmap;
 			final MyNote note = getItem(position);
 			CheckBox check = (CheckBox) convertView.findViewById(R.id.checked);
+			check.setTag(note);
 			check.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
 				@Override
 				public void onCheckedChanged(CompoundButton buttonView,
-						boolean isChecked) {
+						final boolean isChecked) {
 					note.checked = isChecked;
+					Log.d("AAAA", "checked changed");
+					note.checked = isChecked;
+					MyNote mnote = (MyNote) buttonView.getTag();
+
+					(new AsyncTask<MyNote, Void, Void>() {
+
+						@Override
+						protected Void doInBackground(MyNote... mnotes) {
+							MyNote mNote = mnotes[0];
+
+							String token = mNote.token == null ? mSession
+									.getAuthToken() : mNote.token;
+							try {
+								mSession.createNoteStore()
+										.setNoteApplicationDataEntry(
+												token,
+												mNote.noteId,
+												"checked",
+												Boolean.valueOf(isChecked)
+														.toString());
+
+							} catch (TTransportException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (EDAMUserException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (EDAMSystemException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (EDAMNotFoundException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (TException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+
+							return null;
+						}
+
+					}).execute(mnote);
 				}
 			});
 			check.setChecked(note.checked);
